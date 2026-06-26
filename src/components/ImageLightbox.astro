@@ -1,6 +1,15 @@
 ---
 import { Image } from 'astro:assets';
 
+// 1. We define an interface so TypeScript knows exactly what 'images' contains
+interface Props {
+  images?: Array<{
+    src: any;
+    alt: string;
+    caption?: string;
+  }>;
+}
+
 const { images = [] } = Astro.props;
 ---
 
@@ -39,10 +48,13 @@ const { images = [] } = Astro.props;
 <script>
   const triggers = document.querySelectorAll('[data-lightbox-trigger]');
   const overlay = document.getElementById('lightbox-overlay');
-  const image = document.getElementById('lightbox-image');
+  
+  // 2. We use 'as HTMLImageElement' to tell TypeScript this is specifically an image
+  const image = document.getElementById('lightbox-image') as HTMLImageElement | null;
   const closeButton = document.getElementById('lightbox-close');
 
-  const openLightbox = (src, alt) => {
+  // 3. We define 'src' and 'alt' as strings
+  const openLightbox = (src: string, alt: string) => {
     if (!overlay || !image) return;
     image.src = src;
     image.alt = alt;
