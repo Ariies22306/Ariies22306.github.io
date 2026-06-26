@@ -1,0 +1,179 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="SYP Sozialkaufhaus - Spring Boot Backend">
+    <main class="mx-auto max-w-4xl px-6 py-12 md:py-20">
+        <a href="/abaki-overview" class="mb-8 inline-flex items-center text-sm font-medium text-indigo-400 hover:text-indigo-300">
+            <span class="mr-2">&larr;</span>
+            Back to Portfolio
+        </a>
+
+        <article>
+            <header class="mb-12">
+                <h1 class="mb-4 text-4xl font-extrabold tracking-tight sm:text-5xl text-white">
+                    SYP Sozialkaufhaus
+                </h1>
+                <p class="text-lg text-gray-400">
+                    A Spring Boot 3.4.5 backend for an online auction platform managing items, users, and bids
+                </p>
+            </header>
+
+            <section class="prose prose-invert max-w-none space-y-8">
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Project Overview</h2>
+                    <p class="text-gray-300 leading-relaxed">
+                        SYP Sozialkaufhaus is a school project built with Spring Boot 3.4.5 and Java 17. It's a full-featured 
+                        backend API for a social marketplace platform where users can list items for auction, place bids, and track 
+                        their activity. The system handles user registration, email verification, item management, bidding, and 
+                        real-time WebSocket updates.
+                    </p>
+                    <p class="text-gray-300 leading-relaxed mt-4">
+                        This was a collaborative project where I contributed significantly to the business logic layer, integration testing, 
+                        load testing, and operations (logging, profiles, email service). I worked with a team and managed multiple concurrent 
+                        features while maintaining code quality and performance.
+                    </p>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Core Technology Stack</h2>
+                    <div class="flex flex-wrap gap-3">
+                        {[
+                            'Spring Boot 3.4.5',
+                            'Java 17',
+                            'JPA/Hibernate',
+                            'MS SQL Server',
+                            'Maven',
+                            'JWT Authentication',
+                            'Log4j2',
+                            'JUnit 5',
+                            'Mockito',
+                            'Artillery',
+                            'Postman',
+                            'WebSockets'
+                        ].map((tech) => (
+                            <span class="rounded-full border border-indigo-500/30 bg-indigo-500/10 px-4 py-2 text-sm font-medium text-indigo-300">
+                                {tech}
+                            </span>
+                        ))}
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Key Components</h2>
+                    <ul class="space-y-3 text-gray-300">
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3 font-bold">→</span>
+                            <span><strong>Item Service:</strong> Full CRUD operations for items, bidding logic, pagination, and status management</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3 font-bold">→</span>
+                            <span><strong>Sponsor Service:</strong> Sponsor management with full CRUD and pagination</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3 font-bold">→</span>
+                            <span><strong>Email Service:</strong> Async email sending with HTML templates and local testing support</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3 font-bold">→</span>
+                            <span><strong>Structured Logging:</strong> Log4j2 with file rotation, profiles, and observability</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3 font-bold">→</span>
+                            <span><strong>Integration Testing:</strong> Comprehensive JUnit tests for services, DAOs, and controllers</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3 font-bold">→</span>
+                            <span><strong>Load Testing:</strong> Artillery-based performance testing with realistic user scenarios</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Featured Portfolio Pieces</h2>
+                    <p class="text-gray-300 leading-relaxed mb-4">
+                        Break down of the core work I contributed to this project:
+                    </p>
+                    <div class="space-y-3">
+                        <a href="/syp-springboot-setup" class="block p-4 rounded-lg border border-indigo-500/30 bg-indigo-500/5 hover:bg-indigo-500/10 transition">
+                            <h3 class="text-indigo-300 font-bold mb-1">1. Spring Boot Setup & Multi-Profile Configuration</h3>
+                            <p class="text-gray-400 text-sm">Project structure, Maven configuration, environment-specific profiles for development and production</p>
+                        </a>
+
+                        <a href="/syp-service-layer" class="block p-4 rounded-lg border border-indigo-500/30 bg-indigo-500/5 hover:bg-indigo-500/10 transition">
+                            <h3 class="text-indigo-300 font-bold mb-1">2. Service Layer Architecture</h3>
+                            <p class="text-gray-400 text-sm">Item and Sponsor services with pagination, validation, exception handling, and business logic</p>
+                        </a>
+
+                        <a href="/syp-email-integration" class="block p-4 rounded-lg border border-indigo-500/30 bg-indigo-500/5 hover:bg-indigo-500/10 transition">
+                            <h3 class="text-indigo-300 font-bold mb-1">3. Email Integration with Local Testing</h3>
+                            <p class="text-gray-400 text-sm">Spring Mail, async email sending, HTML templates, Papercut and Mailtrap integration for testing</p>
+                        </a>
+
+                        <a href="/syp-logging-strategy" class="block p-4 rounded-lg border border-indigo-500/30 bg-indigo-500/5 hover:bg-indigo-500/10 transition">
+                            <h3 class="text-indigo-300 font-bold mb-1">4. Structured Logging with Log4j2</h3>
+                            <p class="text-gray-400 text-sm">Log4j2 configuration, file rotation, console output, production-ready logging patterns</p>
+                        </a>
+
+                        <a href="/syp-integration-testing" class="block p-4 rounded-lg border border-indigo-500/30 bg-indigo-500/5 hover:bg-indigo-500/10 transition">
+                            <h3 class="text-indigo-300 font-bold mb-1">5. Integration Testing with JUnit & Spring Boot Test</h3>
+                            <p class="text-gray-400 text-sm">Comprehensive integration tests for services, test data setup, mocking, and fixture management</p>
+                        </a>
+
+                        <a href="/syp-load-testing" class="block p-4 rounded-lg border border-indigo-500/30 bg-indigo-500/5 hover:bg-indigo-500/10 transition">
+                            <h3 class="text-indigo-300 font-bold mb-1">6. Load Testing with Artillery</h3>
+                            <p class="text-gray-400 text-sm">Artillery YAML scenarios, performance profiling, user creation and item bidding load tests</p>
+                        </a>
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Learning Outcomes</h2>
+                    <p class="text-gray-300 leading-relaxed mb-4">
+                        This project taught me valuable lessons about enterprise Java development:
+                    </p>
+                    <ul class="space-y-2 text-gray-300">
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3">✓</span>
+                            <span>Building scalable service layers with proper abstraction and separation of concerns</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3">✓</span>
+                            <span>Managing complex business logic in microservices (pagination, filtering, sorting)</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3">✓</span>
+                            <span>Email integration patterns and async processing for non-blocking operations</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3">✓</span>
+                            <span>Environment management with Spring profiles for dev/prod configurations</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3">✓</span>
+                            <span>Observability through structured logging and monitoring</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3">✓</span>
+                            <span>Testing strategies from unit tests to integration tests to load testing</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3">✓</span>
+                            <span>Performance optimization and identifying bottlenecks under load</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Project Context</h2>
+                    <p class="text-gray-300 leading-relaxed">
+                        <strong>Vivify Scrum Board:</strong> The team used Vivify Scrum for sprint planning and task management, 
+                        which helped coordinate work across multiple developers. <strong>Code Ownership:</strong> I primarily owned 
+                        the Item and Sponsor services, testing infrastructure, and logging/profiling setup. Other team members handled 
+                        authentication, picture management, and WebSocket communication.
+                    </p>
+                </div>
+            </section>
+        </article>
+    </main>
+</Layout>

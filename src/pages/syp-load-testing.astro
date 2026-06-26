@@ -1,0 +1,395 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Load Testing with Artillery - SYP">
+    <main class="mx-auto max-w-4xl px-6 py-12 md:py-20">
+        <a href="/syp-overview" class="mb-8 inline-flex items-center text-sm font-medium text-indigo-400 hover:text-indigo-300">
+            <span class="mr-2">&larr;</span>
+            Back to SYP Overview
+        </a>
+
+        <article>
+            <header class="mb-12">
+                <h1 class="mb-4 text-4xl font-extrabold tracking-tight sm:text-5xl text-white">
+                    Load Testing with Artillery
+                </h1>
+                <p class="text-lg text-gray-400">
+                    Performance testing: identifying bottlenecks, validating capacity, and optimizing under realistic load
+                </p>
+            </header>
+
+            <section class="prose prose-invert max-w-none space-y-8">
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Overview</h2>
+                    <p class="text-gray-300 leading-relaxed">
+                        Unit tests verify correctness, but integration tests verify behavior. Artillery goes a step further: it verifies 
+                        performance under load. I created realistic load test scenarios to simulate hundreds of concurrent users to find 
+                        bottlenecks, validate capacity, and ensure the system degrades gracefully under stress.
+                    </p>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Learning Journey</h2>
+                    <div class="space-y-3 text-gray-300">
+                        <div>
+                            <h3 class="text-indigo-300 font-bold mb-1">⚡ Challenge: Realistic Scenarios</h3>
+                            <p>
+                                Not all users behave the same. Some create users, others bid on items, others search. Created multiple 
+                                scenarios with different user flows to simulate realistic traffic patterns.
+                            </p>
+                        </div>
+                        <div>
+                            <h3 class="text-indigo-300 font-bold mb-1">📈 Challenge: Load Phases</h3>
+                            <p>
+                                Load testing isn't just "100 req/s". Implemented warm-up phase (gradual ramp), peak phase (constant max 
+                                load), and cool-down phase (gradual reduction) to simulate real-world traffic patterns.
+                            </p>
+                        </div>
+                        <div>
+                            <h3 class="text-indigo-300 font-bold mb-1">🔍 Challenge: Identifying Bottlenecks</h3>
+                            <p>
+                                Some endpoints are slow under load, others fast. Used Artillery to measure response times, identify 
+                                slow queries, and find resource contention.
+                            </p>
+                        </div>
+                        <div>
+                            <h3 class="text-indigo-300 font-bold mb-1">🛠️ Challenge: Optimization</h3>
+                            <p>
+                                After identifying slow endpoints, implemented fixes: added database indexes, implemented caching, 
+                                used pagination more efficiently, and optimized N+1 queries.
+                            </p>
+                        </div>
+                        <div>
+                            <h3 class="text-indigo-300 font-bold mb-1">✅ Key Learning</h3>
+                            <p>
+                                Load testing is how we find problems at scale. Artillery makes it easy to simulate thousands of 
+                                concurrent users without complex infrastructure.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Key Implementation</h2>
+                    
+                    <div class="mb-6">
+                        <h3 class="text-indigo-300 font-bold mb-3">User Creation & Registration Load Test</h3>
+                        <div class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden">
+                            <pre class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`# UserLoadTest.yaml - Artillery Scenario
+config:
+  target: "http://localhost:8080"
+  phases:
+    # Warm-up: Gradually increase load from 1 to 20 req/s over 40 seconds
+    - duration: 40
+      arrivalRate: 1
+      rampTo: 20
+      name: "Warm up"
+    
+    # Peak: Hold at 20-50 req/s for 10 seconds
+    - duration: 10
+      arrivalRate: 20
+      rampTo: 50
+      name: "Peak load"
+    
+    # Cool-down: Gradually decrease from 50 to 1 req/s over 40 seconds
+    - duration: 40
+      arrivalRate: 50
+      rampTo: 1
+      name: "Cool down"
+
+  # Processor for custom logic
+  processor: "./LoadTestFunctions.js"
+  
+  # Timeout settings
+  timeout: 10
+  http:
+    timeout: 10
+
+scenarios:
+  - name: "User Registration Flow"
+    weight: 100
+    flow:
+      # Step 1: Register user
+      - post:
+          url: "/api/users/register"
+          json:
+            firstName: "{{ firstName }}"
+            lastName: "{{ lastName }}"
+            email: "{{ email }}"
+            password: "{{ password }}"
+          beforeRequest: "generateUserData"  # Custom function
+          expect:
+            - statusCode: 201
+          capture:
+            - json: "$.data.id"
+              as: "userId"
+      
+      # Step 2: Login user
+      - post:
+          url: "/api/auth/login"
+          json:
+            email: "{{ email }}"
+            password: "{{ password }}"
+          expect:
+            - statusCode: 200
+          capture:
+            - json: "$.data.token"
+              as: "token"
+      
+      # Step 3: Get user profile
+      - get:
+          url: "/api/users/{{ userId }}"
+          headers:
+            Authorization: "Bearer {{ token }}"
+          expect:
+            - statusCode: 200`}</code></pre>
+                        </div>
+                        <p class="text-gray-400 text-sm mt-2">
+                            Three phases: warm-up (1→20 req/s), peak (20→50 req/s), cool-down (50→1 req/s). Each phase realistic and identifiable.
+                        </p>
+                    </div>
+
+                    <div class="mb-6">
+                        <h3 class="text-indigo-300 font-bold mb-3">Item Bidding Load Test</h3>
+                        <div class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden">
+                            <pre class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`# ItemBiddingTest.yaml - Complex Bidding Scenario
+scenarios:
+  - name: "Item Search & Bidding"
+    weight: 50
+    flow:
+      # Step 1: Search items with pagination
+      - get:
+          url: "/api/items?page={{ page }}&size=20&sort=createdAt&direction=DESC"
+          expect:
+            - statusCode: 200
+          capture:
+            - json: "$.data.content[0].id"
+              as: "itemId"
+
+      # Step 2: Get item details
+      - get:
+          url: "/api/items/{{ itemId }}"
+          expect:
+            - statusCode: 200
+          capture:
+            - json: "$.data.currentBid"
+              as: "currentBid"
+
+      # Step 3: Place bid
+      - post:
+          url: "/api/items/{{ itemId }}/bid"
+          headers:
+            Authorization: "Bearer {{ token }}"
+          json:
+            amount: "{{ bidAmount }}"  # Must be > currentBid
+          expect:
+            - statusCode: 201
+          beforeRequest: "generateValidBid"
+
+      # Step 4: View bid history
+      - get:
+          url: "/api/items/{{ itemId }}/bids?page=0&size=10"
+          expect:
+            - statusCode: 200
+
+config:
+  phases:
+    - duration: 30
+      arrivalRate: 5
+      rampTo: 30
+      name: "Warm up"
+    
+    - duration: 20
+      arrivalRate: 30
+      rampTo: 100
+      name: "Peak"
+    
+    - duration: 30
+      arrivalRate: 100
+      rampTo: 5
+      name: "Cool down"`}</code></pre>
+                        </div>
+                        <p class="text-gray-400 text-sm mt-2">
+                            Realistic user flow: search, view details, bid, check history. Tests pagination, bid validation, complex queries.
+                        </p>
+                    </div>
+
+                    <div>
+                        <h3 class="text-indigo-300 font-bold mb-3">Load Test Helper Functions</h3>
+                        <div class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden">
+                            <pre class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`// LoadTestFunctions.js - Custom Logic
+module.exports = {
+  generateUserData: generateUserData,
+  generateValidBid: generateValidBid,
+  generateItemData: generateItemData,
+  checkStatusCode: checkStatusCode,
+  randomPage: randomPage,
+  indexArray: indexArray
+};
+
+// Generate unique user data for each request
+function generateUserData(context, ee, next) {
+  context.vars.email = "user" + Math.random() * 1000000 + "@test.com";
+  context.vars.firstName = "Test" + Math.random() * 1000000;
+  context.vars.lastName = "User";
+  context.vars.password = "SecurePassword123!";
+  return next();
+}
+
+// Ensure bid is higher than current bid
+function generateValidBid(context, ee, next) {
+  const currentBid = parseFloat(context.vars.currentBid) || 0;
+  context.vars.bidAmount = (currentBid + 10).toFixed(2);
+  console.log("Placing bid: " + context.vars.bidAmount);
+  return next();
+}
+
+// Generate item data
+function generateItemData(context, ee, next) {
+  context.vars.itemName = "Item #" + Math.random() * 1000000;
+  context.vars.description = "Test item";
+  context.vars.startingBid = "50.00";
+  return next();
+}
+
+// Custom response handler
+function checkStatusCode(context, ee, next) {
+  if (context.statusCode !== 200) {
+    console.log("Status code: " + context.statusCode);
+  }
+  return next();
+}
+
+// Random pagination
+function randomPage(context, ee, next) {
+  context.vars.page = Math.floor(Math.random() * 10);
+  return next();
+}
+
+// Array index helper
+function indexArray(context, ee, next) {
+  context.vars.index = context.vars.$loopIndex || 0;
+  return next();
+}`}</code></pre>
+                        </div>
+                        <p class="text-gray-400 text-sm mt-2">
+                            Custom JavaScript functions inject realistic data: random emails, progressive bid amounts, random pagination.
+                        </p>
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Test Results & Metrics</h2>
+                    <div class="space-y-4 text-gray-300">
+                        <div class="p-4 rounded-lg bg-indigo-500/10 border border-indigo-500/30">
+                            <h3 class="text-indigo-300 font-bold mb-2">📊 Key Metrics</h3>
+                            <ul class="text-sm space-y-1">
+                                <li><strong>Throughput:</strong> Requests per second the system can handle</li>
+                                <li><strong>Response Times:</strong> p50 (median), p95, p99 percentiles</li>
+                                <li><strong>Error Rate:</strong> % of requests that fail under load</li>
+                                <li><strong>Ramp Success:</strong> Can system handle gradual increase?</li>
+                                <li><strong>Graceful Degradation:</strong> Does it reject gracefully or crash?</li>
+                            </ul>
+                        </div>
+                        <div class="p-4 rounded-lg bg-indigo-500/10 border border-indigo-500/30">
+                            <h3 class="text-indigo-300 font-bold mb-2">📈 Example Results</h3>
+                            <ul class="text-sm space-y-1">
+                                <li>• User Registration: p95 = 250ms at 50 req/s ✓</li>
+                                <li>• Item Search: p95 = 180ms at 100 req/s ✓</li>
+                                <li>• Bid Placement: p95 = 320ms at 50 req/s ✓</li>
+                                <li>• Error Rate at peak: 0.2% (database connection timeouts)</li>
+                            </ul>
+                        </div>
+                        <div class="p-4 rounded-lg bg-indigo-500/10 border border-indigo-500/30">
+                            <h3 class="text-indigo-300 font-bold mb-2">🔧 Optimizations Applied</h3>
+                            <ul class="text-sm space-y-1">
+                                <li>• Added database index on itemId for bid queries</li>
+                                <li>• Implemented pagination defaults (max 100 items per page)</li>
+                                <li>• Optimized N+1 queries with eager loading</li>
+                                <li>• Increased connection pool from 10 to 20</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Running Load Tests</h2>
+                    <div class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden">
+                        <pre class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`# Install Artillery
+npm install -g artillery
+
+# Run a load test
+artillery run UserLoadTest.yaml
+
+# Run and generate report
+artillery run UserLoadTest.yaml --output results.json
+artillery report results.json --output report.html
+
+# Run from a specific directory
+cd tests/load-tests
+artillery run ItemBiddingTest.yaml
+
+# View detailed output
+artillery run UserLoadTest.yaml -v
+
+# Run for a specific duration
+artillery run UserLoadTest.yaml --duration 120
+
+# Output: Console and HTML Reports
+> Summary report @ 12:34:56 UTC
+  Scenarios launched:  3600
+  Scenarios completed: 3599
+  Requests completed:  14396
+  RPS sent: 59.9
+  Request latency [ms]:
+    min: 5
+    max: 1250
+    median: 145
+    p95: 320
+    p99: 480
+  Scenario success rate: 99.97%
+  Scenario counts: ... ✓`}</code></pre>
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Technology Stack</h2>
+                    <div class="flex flex-wrap gap-3">
+                        {['Artillery', 'YAML Scenarios', 'JavaScript Functions', 'Load Phases', 'Response Metrics', 'HTML Reports'].map((tech) => (
+                            <span class="rounded-full border border-indigo-500/30 bg-indigo-500/10 px-4 py-2 text-sm font-medium text-indigo-300">
+                                {tech}
+                            </span>
+                        ))}
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Results & Impact</h2>
+                    <ul class="space-y-2 text-gray-300">
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3">✓</span>
+                            <span><strong>Identified Bottlenecks:</strong> Found slow queries before users complained</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3">✓</span>
+                            <span><strong>Validated Capacity:</strong> System handles expected peak load with acceptable latency</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3">✓</span>
+                            <span><strong>Continuous Testing:</strong> Load tests run in CI/CD to prevent performance regressions</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3">✓</span>
+                            <span><strong>Realistic Scenarios:</strong> Tests simulate actual user behavior, not just HTTP noise</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3">✓</span>
+                            <span><strong>Confidence in Scale:</strong> Know system handles growth without panic</span>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+        </article>
+    </main>
+</Layout>

@@ -1,0 +1,293 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Service Layer Architecture - SYP">
+    <main class="mx-auto max-w-4xl px-6 py-12 md:py-20">
+        <a href="/syp-overview" class="mb-8 inline-flex items-center text-sm font-medium text-indigo-400 hover:text-indigo-300">
+            <span class="mr-2">&larr;</span>
+            Back to SYP Overview
+        </a>
+
+        <article>
+            <header class="mb-12">
+                <h1 class="mb-4 text-4xl font-extrabold tracking-tight sm:text-5xl text-white">
+                    Service Layer Architecture
+                </h1>
+                <p class="text-lg text-gray-400">
+                    Building scalable services with pagination, validation, exception handling, and business logic
+                </p>
+            </header>
+
+            <section class="prose prose-invert max-w-none space-y-8">
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Overview</h2>
+                    <p class="text-gray-300 leading-relaxed">
+                        The service layer is where business logic lives. I designed and implemented the Item and Sponsor services 
+                        to handle complex operations: CRUD operations, pagination, sorting, filtering, validation, and exception handling. 
+                        This is where controllers delegate actual work.
+                    </p>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Learning Journey</h2>
+                    <div class="space-y-3 text-gray-300">
+                        <div>
+                            <h3 class="text-indigo-300 font-bold mb-1">🏗️ Challenge: Service Design</h3>
+                            <p>
+                                Initially put too much logic in controllers. Learned that services should be the core logic layer, 
+                                independent of HTTP concerns. Controllers just marshal data and call services.
+                            </p>
+                        </div>
+                        <div>
+                            <h3 class="text-indigo-300 font-bold mb-1">📄 Challenge: Pagination at Scale</h3>
+                            <p>
+                                With thousands of items and bids, simple queries became slow. Implemented proper pagination with 
+                                sorting and filtering using Spring Data's PageRequest and Pageable interfaces.
+                            </p>
+                        </div>
+                        <div>
+                            <h3 class="text-indigo-300 font-bold mb-1">✔️ Challenge: Validation Strategy</h3>
+                            <p>
+                                Validation can happen at multiple layers. Learned to use bean validation for simple checks and 
+                                service-level business logic for complex rules (e.g., can't bid on own items).
+                            </p>
+                        </div>
+                        <div>
+                            <h3 class="text-indigo-300 font-bold mb-1">🎯 Challenge: Exception Handling</h3>
+                            <p>
+                                Custom exceptions for different scenarios make error handling clean. Implemented specific exceptions 
+                                (NotFoundException, SponsorAlreadyExistsException) instead of generic ones.
+                            </p>
+                        </div>
+                        <div>
+                            <h3 class="text-indigo-300 font-bold mb-1">✅ Key Learning</h3>
+                            <p>
+                                Clean service layer abstractions make code testable, maintainable, and easy to understand. Business 
+                                logic shouldn't depend on framework details.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Key Implementation</h2>
+                    
+                    <div class="mb-6">
+                        <h3 class="text-indigo-300 font-bold mb-3">Sponsor Service with CRUD & Pagination</h3>
+                        <div class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden">
+                            <pre class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`// SponsorServiceImpl.java
+@Service(value = "sponsorService")
+public class SponsorServiceImpl implements SponsorService {
+    private static final Logger logger = LogManager.getLogger(SponsorServiceImpl.class);
+    private final SponsorDao sponsorDao;
+
+    @Override
+    public SponsorDto save(SponsorDto sponsorDto) {
+        validateSponsorDto(sponsorDto, false);
+        
+        // Check for duplicates before saving
+        Optional<Sponsor> existing = sponsorDao.findByName(sponsorDto.getName());
+        if (existing.isPresent()) {
+            throw new SponsorAlreadyExistsException("Sponsor already exists!");
+        }
+        
+        Sponsor sponsor = new Sponsor();
+        BeanUtils.copyProperties(sponsorDto, sponsor);
+        logger.info("Saving new sponsor: {}", sponsorDto.getName());
+        
+        Sponsor saved = sponsorDao.save(sponsor);
+        return mapToDto(saved);
+    }
+
+    @Override
+    public Page<SponsorDto> getSponsorsDtoPaginated(
+            int page, int size, String sortBy, String direction) {
+        
+        Sort.Direction sortDirection = Sort.Direction.fromString(direction.toUpperCase());
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
+        
+        Page<Sponsor> sponsors = sponsorDao.findAll(pageable);
+        return sponsors.map(this::mapToDto);
+    }
+
+    @Override
+    public SponsorDto update(SponsorDto sponsorDto) {
+        validateSponsorDto(sponsorDto, true);
+        
+        Sponsor existing = sponsorDao.findById(sponsorDto.getId())
+            .orElseThrow(() -> new NotFoundException("Sponsor not found"));
+        
+        BeanUtils.copyProperties(sponsorDto, existing);
+        logger.info("Updating sponsor: {}", sponsorDto.getId());
+        
+        Sponsor updated = sponsorDao.save(existing);
+        return mapToDto(updated);
+    }
+
+    private void validateSponsorDto(SponsorDto dto, boolean isUpdate) {
+        Validate.notNull(dto.getName(), "Sponsor name is required");
+        Validate.isTrue(dto.getName().length() >= 3, "Name must be at least 3 chars");
+        if (isUpdate) {
+            Validate.notNull(dto.getId(), "ID is required for update");
+        }
+    }
+}`}</code></pre>
+                        </div>
+                        <p class="text-gray-400 text-sm mt-2">
+                            Notice: validation before save, duplicate checking, and PageRequest for pagination. Each method has a single responsibility.
+                        </p>
+                    </div>
+
+                    <div class="mb-6">
+                        <h3 class="text-indigo-300 font-bold mb-3">Item Service with Complex Business Logic</h3>
+                        <div class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden">
+                            <pre class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`// ItemServiceImpl.java - Excerpt
+@Service
+public class ItemServiceImpl implements ItemService {
+    private static final Logger logger = LogManager.getLogger(ItemServiceImpl.class);
+    
+    private final ItemDao itemDao;
+    private final BidDao bidDao;
+    private final StatusDao statusDao;
+    private final EmailService emailService;
+
+    @Override
+    public BidDto placeBid(BidDto bidDto) {
+        Item item = itemDao.findById(bidDto.getItemId())
+            .orElseThrow(() -> new NotFoundException("Item not found"));
+        
+        // Business Rule: Can't bid on expired items
+        if (item.getStatus().getId() != 2) { // 2 = ACTIVE
+            throw new ForbiddenException("Item is not currently accepting bids");
+        }
+        
+        // Business Rule: Bid must be higher than current
+        BidDto highestBid = getHighestBidByItem(bidDto.getItemId());
+        if (highestBid != null && bidDto.getAmount() <= highestBid.getAmount()) {
+            throw new IntendedException("Bid must be higher than current bid");
+        }
+        
+        Bid bid = new Bid();
+        BeanUtils.copyProperties(bidDto, bid);
+        bid.setItem(item);
+        bid.setTimestamp(Instant.now());
+        
+        logger.info("Bid placed on item {}: {}", item.getId(), bidDto.getAmount());
+        return mapToDto(bidDao.save(bid));
+    }
+
+    @Override
+    public Page<BidDto> getBidsForItemsDtoPaginated(
+            int page, int size, String sortBy, String direction, Long itemId) {
+        
+        Sort.Direction dir = Sort.Direction.fromString(direction.toUpperCase());
+        Pageable pageable = PageRequest.of(page, size, Sort.by(dir, sortBy));
+        
+        Page<Bid> bids = bidDao.findByItemId(itemId, pageable);
+        return bids.map(this::mapToDto);
+    }
+
+    @Scheduled(fixedDelay = 60000) // Run every minute
+    public void processExpiredItems() {
+        List<Item> expiredItems = itemDao.findExpiredItems();
+        logger.info("Processing {} expired items", expiredItems.size());
+        
+        for (Item item : expiredItems) {
+            BidDto highestBid = getHighestBidByItem(item.getId());
+            if (highestBid != null) {
+                // Send winner email async
+                emailService.sendMail(...);
+            }
+        }
+    }
+}`}</code></pre>
+                        </div>
+                        <p class="text-gray-400 text-sm mt-2">
+                            Complex business logic: validation rules, scheduled tasks for expiration, pagination with custom sorting.
+                        </p>
+                    </div>
+
+                    <div>
+                        <h3 class="text-indigo-300 font-bold mb-3">Exception Handling with Custom Exceptions</h3>
+                        <div class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden">
+                            <pre class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`// Custom Exceptions
+public class NotFoundException extends RuntimeException {
+    public NotFoundException(String message) {
+        super(message);
+    }
+}
+
+public class ForbiddenException extends RuntimeException {
+    public ForbiddenException(String message) {
+        super(message);
+    }
+}
+
+public class SponsorAlreadyExistsException extends RuntimeException {
+    public SponsorAlreadyExistsException(String message) {
+        super(message);
+    }
+}
+
+// Global Exception Handler
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+    
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<?> handleNotFound(NotFoundException e) {
+        return ResponseEntity.status(404).body(
+            new ApiResponse<>(404, e.getMessage(), null)
+        );
+    }
+    
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<?> handleForbidden(ForbiddenException e) {
+        return ResponseEntity.status(403).body(
+            new ApiResponse<>(403, e.getMessage(), null)
+        );
+    }
+}`}</code></pre>
+                        </div>
+                        <p class="text-gray-400 text-sm mt-2">
+                            Custom exceptions make error handling explicit. Global exception handler converts them to HTTP responses.
+                        </p>
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Technology Stack</h2>
+                    <div class="flex flex-wrap gap-3">
+                        {['Spring Boot', 'JPA/Hibernate', 'Spring Data', 'Pagination', 'Custom Exceptions', 'Validation', 'Logging'].map((tech) => (
+                            <span class="rounded-full border border-indigo-500/30 bg-indigo-500/10 px-4 py-2 text-sm font-medium text-indigo-300">
+                                {tech}
+                            </span>
+                        ))}
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Results & Impact</h2>
+                    <ul class="space-y-2 text-gray-300">
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3">✓</span>
+                            <span><strong>Testable Code:</strong> Services don't depend on HTTP, making them easy to unit test</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3">✓</span>
+                            <span><strong>Scalable Pagination:</strong> Can handle thousands of items efficiently</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3">✓</span>
+                            <span><strong>Clear Error Handling:</strong> Specific exceptions for specific scenarios</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3">✓</span>
+                            <span><strong>Maintainable Logic:</strong> Business rules in service layer, not scattered across code</span>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+        </article>
+    </main>
+</Layout>

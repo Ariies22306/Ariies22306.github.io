@@ -1,0 +1,317 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Database & Entity Framework Architecture - Abaki">
+    <main class="mx-auto max-w-4xl px-6 py-12 md:py-20">
+        <a href="/abaki-overview" class="mb-8 inline-flex items-center text-sm font-medium text-indigo-400 hover:text-indigo-300">
+            <span class="mr-2">&larr;</span>
+            Back to Abaki Overview
+        </a>
+
+        <article>
+            <header class="mb-12">
+                <h1 class="mb-4 text-4xl font-extrabold tracking-tight sm:text-5xl text-white">
+                    Database & Entity Framework Architecture
+                </h1>
+                <p class="text-lg text-gray-400">
+                    Designing a relational database schema and implementing it with Entity Framework Core
+                </p>
+            </header>
+
+            <section class="prose prose-invert max-w-none space-y-8">
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Overview</h2>
+                    <p class="text-gray-300 leading-relaxed">
+                        The database layer is the foundation of Abaki's data persistence. Built with Entity Framework Core 
+                        and SQLite, it manages users, repositories, activities, API keys, and code files. The schema design 
+                        reflects careful consideration of relationships, constraints, and future scalability.
+                    </p>
+                    <p class="text-gray-300 leading-relaxed mt-4">
+                        Rather than relying on EF migrations alone, I designed the schema intentionally, considering how entities 
+                        relate to each other and ensuring data integrity at the database level.
+                    </p>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Learning Journey</h2>
+                    <div class="space-y-3 text-gray-300">
+                        <div>
+                            <h3 class="text-indigo-300 font-bold mb-1">📊 Challenge 1: Schema Design</h3>
+                            <p>
+                                First time designing a relational database from scratch. Learned to think about entity relationships 
+                                (one-to-many, many-to-many) and when to use foreign keys vs. other patterns. Initially made mistakes 
+                                with circular dependencies.
+                            </p>
+                        </div>
+                        <div>
+                            <h3 class="text-indigo-300 font-bold mb-1">🔗 Challenge 2: Entity Relationships</h3>
+                            <p>
+                                Understanding how to model relationships in EF Core: navigation properties, foreign key attributes, 
+                                and cascade delete behavior. Had to rethink some designs after running into issues with orphaned records.
+                            </p>
+                        </div>
+                        <div>
+                            <h3 class="text-indigo-300 font-bold mb-1">🔄 Challenge 3: Migrations</h3>
+                            <p>
+                                Managing database migrations as the schema evolved. Learned when to create new migrations vs. when 
+                                to squash them. Important for maintaining a clean git history and deployment.
+                            </p>
+                        </div>
+                        <div>
+                            <h3 class="text-indigo-300 font-bold mb-1">📈 Challenge 4: Query Optimization</h3>
+                            <p>
+                                Initially wrote inefficient queries that loaded too much data. Learned about eager loading (.Include()), 
+                                lazy loading pitfalls, and query projection (.Select()) for better performance.
+                            </p>
+                        </div>
+                        <div>
+                            <h3 class="text-indigo-300 font-bold mb-1">✅ Key Learning</h3>
+                            <p>
+                                Good database design saves countless hours of debugging later. Time spent thinking about relationships 
+                                and constraints upfront prevents data integrity issues downstream.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Key Code Implementation</h2>
+                    
+                    <div class="mb-6">
+                        <h3 class="text-indigo-300 font-bold mb-3">User Entity with Constraints</h3>
+                        <div class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden">
+                            <pre class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`// Model/User.cs
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Collections.Generic;
+
+namespace Abaki.api.Model;
+
+public class User
+{
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public int Id { get; private set; }
+
+    [Required]
+    [StringLength(100)]
+    public string Name { get; set; } = string.Empty;
+
+    [Required]
+    public string Password { get; set; } = string.Empty;
+
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
+
+    // Navigation property: One user can have many repositories
+    public ICollection<Repo> Repos { get; set; } = new List<Repo>();
+}`}</code></pre>
+                        </div>
+                        <p class="text-gray-400 text-sm mt-2">
+                            Database-generated keys and timestamps prevent manual manipulation. The navigation property allows 
+                            eager loading of related repositories.
+                        </p>
+                    </div>
+
+                    <div class="mb-6">
+                        <h3 class="text-indigo-300 font-bold mb-3">Repository Entity with Foreign Keys</h3>
+                        <div class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden">
+                            <pre class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`// Model/Repo.cs
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Collections.Generic;
+
+namespace Abaki.api.Model;
+
+public class Repo
+{
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public int Id { get; private set; }
+
+    [Required]
+    [StringLength(200)]
+    public string Name { get; set; } = string.Empty;
+
+    [Required]
+    [StringLength(100)]
+    public string Owner { get; set; } = string.Empty;
+
+    [Required]
+    [StringLength(100)]
+    public string RepositoryName { get; set; } = string.Empty;
+
+    [Required]
+    public bool Watch { get; set; } = true;
+
+    // Foreign key to AIAPIKey (nullable—can be set later)
+    public int? KeyId { get; set; }
+
+    [ForeignKey("KeyId")]
+    public AIAPIKey? Key { get; set; }
+
+    public bool WebhookActive { get; set; } = false;
+
+    // Navigation properties for related entities
+    public ICollection<Activity> Activities { get; set; } = new List<Activity>();
+    public ICollection<RepoFile> Files { get; set; } = new List<RepoFile>();
+    public RepoDefaults? Defaults { get; set; }
+
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
+}`}</code></pre>
+                        </div>
+                        <p class="text-gray-400 text-sm mt-2">
+                            The KeyId is nullable, allowing repositories to be created without an API key initially. 
+                            Navigation properties enable efficient data loading via EF includes.
+                        </p>
+                    </div>
+
+                    <div class="mb-6">
+                        <h3 class="text-indigo-300 font-bold mb-3">DbContext Configuration</h3>
+                        <div class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden">
+                            <pre class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`// Data/AbakiDb.cs
+using Microsoft.EntityFrameworkCore;
+using Abaki.api.Model;
+
+namespace Abaki.api.Data;
+
+public class AbakiDb : DbContext
+{
+    public AbakiDb(DbContextOptions<AbakiDb> options) : base(options) { }
+
+    public DbSet<User> Users { get; set; }
+    public DbSet<Repo> Repos { get; set; }
+    public DbSet<Activity> Activities { get; set; }
+    public DbSet<AIAPIKey> AIAPIKeys { get; set; }
+    public DbSet<RepoFile> RepoFiles { get; set; }
+    public DbSet<RepoDefaults> RepoDefaults { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        // Ensure usernames are unique
+        modelBuilder.Entity<User>()
+            .HasIndex(u => u.Name)
+            .IsUnique();
+
+        // Cascade delete: when a repo is deleted, its activities are too
+        modelBuilder.Entity<Activity>()
+            .HasOne<Repo>()
+            .WithMany(r => r.Activities)
+            .HasForeignKey(a => a.RepoId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // One-to-one: each repo has one RepoDefaults
+        modelBuilder.Entity<RepoDefaults>()
+            .HasOne<Repo>()
+            .WithOne(r => r.Defaults)
+            .HasForeignKey<RepoDefaults>(rd => rd.RepoId)
+            .OnDelete(DeleteBehavior.Cascade);
+    }
+}`}</code></pre>
+                        </div>
+                        <p class="text-gray-400 text-sm mt-2">
+                            OnModelCreating allows fluent configuration of indexes, relationships, and delete behaviors. 
+                            Cascade delete ensures orphaned records aren't left behind.
+                        </p>
+                    </div>
+
+                    <div>
+                        <h3 class="text-indigo-300 font-bold mb-3">Efficient Data Queries</h3>
+                        <div class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden">
+                            <pre class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`// RepoService.cs - Query Patterns
+// ❌ Bad: N+1 query problem
+public async Task<List<RepoDto>> GetAllAsync()
+{
+    var repos = await _db.Repos.ToListAsync();
+    // This loads all repos, then for each repo you access .Key, 
+    // it triggers another query!
+    return repos.Select(r => new RepoDto 
+    { 
+        Id = r.Id, 
+        KeyId = r.Key?.Id  // Extra queries here!
+    }).ToList();
+}
+
+// ✅ Good: Use Include for eager loading
+public async Task<List<RepoDto>> GetAllAsync()
+{
+    var repos = await _db.Repos
+        .Include(r => r.Key)      // Load related Key
+        .Include(r => r.Activities) // Load activities
+        .ToListAsync();
+    
+    return repos.Select(r => new RepoDto 
+    { 
+        Id = r.Id, 
+        KeyId = r.Key?.Id
+    }).ToList();
+}
+
+// ✅ Better: Use Select projection (only load needed fields)
+public async Task<List<RepoDto>> GetAllAsync()
+{
+    return await _db.Repos
+        .Select(r => new RepoDto
+        {
+            Id = r.Id,
+            Name = r.Name,
+            Owner = r.Owner,
+            KeyId = r.Key!.Id
+        })
+        .ToListAsync();
+}`}</code></pre>
+                        </div>
+                        <p class="text-gray-400 text-sm mt-2">
+                            Include() prevents N+1 queries by loading relationships upfront. Select() projections are even 
+                            better for performance when you don't need entire entities.
+                        </p>
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Technology Stack</h2>
+                    <div class="flex flex-wrap gap-3">
+                        {['C#', 'Entity Framework Core', 'SQLite', 'Migrations', 'LINQ', 'Async/Await', 'Data Annotations', 'Fluent API'].map((tech) => (
+                            <span class="rounded-full border border-indigo-500/30 bg-indigo-500/10 px-4 py-2 text-sm font-medium text-indigo-300">
+                                {tech}
+                            </span>
+                        ))}
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Results & Impact</h2>
+                    <p class="text-gray-300 leading-relaxed">
+                        The database architecture provides:
+                    </p>
+                    <ul class="space-y-2 text-gray-300 mt-3">
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3">✓</span>
+                            <span><strong>Data Integrity:</strong> Foreign keys and constraints prevent invalid data states</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3">✓</span>
+                            <span><strong>Efficient Queries:</strong> Proper indexing and query patterns prevent performance issues</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3">✓</span>
+                            <span><strong>Clean Code:</strong> Entity Framework abstracts SQL, making data access code type-safe and readable</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3">✓</span>
+                            <span><strong>Migration History:</strong> EF migrations track all schema changes for reproducible deployments</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3">✓</span>
+                            <span><strong>Scalability Ready:</strong> The schema can grow without breaking existing code due to proper abstraction</span>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+        </article>
+    </main>
+</Layout>

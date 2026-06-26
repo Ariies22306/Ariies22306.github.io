@@ -1,0 +1,401 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Activity Logging & Real-time SignalR Hub - Abaki">
+    <main class="mx-auto max-w-4xl px-6 py-12 md:py-20">
+        <a href="/abaki-overview" class="mb-8 inline-flex items-center text-sm font-medium text-indigo-400 hover:text-indigo-300">
+            <span class="mr-2">&larr;</span>
+            Back to Abaki Overview
+        </a>
+
+        <article>
+            <header class="mb-12">
+                <h1 class="mb-4 text-4xl font-extrabold tracking-tight sm:text-5xl text-white">
+                    Activity Logging & Real-time SignalR Hub
+                </h1>
+                <p class="text-lg text-gray-400">
+                    Implementing structured logging with Serilog and real-time WebSocket communication via SignalR
+                </p>
+            </header>
+
+            <section class="prose prose-invert max-w-none space-y-8">
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Overview</h2>
+                    <p class="text-gray-300 leading-relaxed">
+                        Observability is critical in production systems. This module implements two complementary logging strategies:
+                    </p>
+                    <ul class="text-gray-300 space-y-2 mt-3">
+                        <li><strong>Structured Logging (Serilog):</strong> All application events are logged to rotating files with 
+                        timestamps, severity levels, and contextual information for debugging and auditing.</li>
+                        <li><strong>Activity Tracking:</strong> Key business events (repo added, webhook triggered, code scanned) 
+                        are stored in the database for user-facing activity feeds and audit trails.</li>
+                        <li><strong>Real-time Updates (SignalR):</strong> Clients receive live updates via WebSocket as operations complete, 
+                        enabling responsive user interfaces.</li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Learning Journey</h2>
+                    <div class="space-y-3 text-gray-300">
+                        <div>
+                            <h3 class="text-indigo-300 font-bold mb-1">📝 Challenge 1: Structured Logging</h3>
+                            <p>
+                                Console.WriteLine is fine for development, but production needs proper logging. Serilog introduces 
+                                structured logging where events have typed properties, enabling powerful filtering and analysis. 
+                                Initially confusing, but incredibly powerful once understood.
+                            </p>
+                        </div>
+                        <div>
+                            <h3 class="text-indigo-300 font-bold mb-1">💾 Challenge 2: Log File Management</h3>
+                            <p>
+                                Log files grow quickly. Serilog's rolling interval and file size limits prevent disk space issues. 
+                                Configured monthly rolling with size limits to keep the most recent logs easily accessible.
+                            </p>
+                        </div>
+                        <div>
+                            <h3 class="text-indigo-300 font-bold mb-1">🔌 Challenge 3: SignalR Integration</h3>
+                            <p>
+                                WebSockets are powerful but require careful resource management. Learned about hubs, connection 
+                                handling, groups, and broadcasting. The biggest lesson: ensure proper cleanup of connections to 
+                                prevent memory leaks.
+                            </p>
+                        </div>
+                        <div>
+                            <h3 class="text-indigo-300 font-bold mb-1">📊 Challenge 4: Real-time vs. Persistent</h3>
+                            <p>
+                                Some logs should be persistent (audit trails), others should be real-time ephemeral updates (live 
+                                status). Learned to use the right tool for each: database for audit trails, SignalR for real-time.
+                            </p>
+                        </div>
+                        <div>
+                            <h3 class="text-indigo-300 font-bold mb-1">✅ Key Learning</h3>
+                            <p>
+                                Logging is not a feature, it's infrastructure. Good logging saves hours during debugging and provides 
+                                audit trails for compliance. Real-time updates make applications feel responsive.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Key Code Implementation</h2>
+                    
+                    <div class="mb-6">
+                        <h3 class="text-indigo-300 font-bold mb-3">Serilog Configuration</h3>
+                        <div class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden">
+                            <pre class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`// Program.cs - Serilog Setup
+var logPath = Path.Combine(builder.Environment.ContentRootPath, "Logs");
+Directory.CreateDirectory(logPath);
+
+Log.Logger = new LoggerConfiguration()
+    // Set minimum severity level
+    .MinimumLevel.Information()
+    
+    // Override specific namespaces to reduce noise
+    .MinimumLevel.Override("Microsoft.EntityFrameworkCore", LogEventLevel.Warning)
+    
+    // File sink with rolling interval
+    .WriteTo.File(
+        path: Path.Combine(logPath, "Log-.txt"),
+        outputTemplate: "[{Timestamp:yyyy-MM-dd HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}",
+        rollingInterval: RollingInterval.Month,  // New file each month
+        rollOnFileSizeLimit: true,               // New file when size exceeds limit
+        retainedFileCountLimit: 12               // Keep last 12 files (~1 year)
+    )
+    
+    // Enrich logs with additional context
+    .Enrich.FromLogContext()
+    
+    // Create logger
+    .CreateLogger();
+
+builder.Host.UseSerilog();
+
+// In Startup, inject ILogger<T> wherever needed
+// Then use: _logger.LogInformation("Event: {EventName}", eventName);
+`}</code></pre>
+                        </div>
+                        <p class="text-gray-400 text-sm mt-2">
+                            Serilog writes structured logs to rotating files. The rolling interval ensures old logs are automatically 
+                            archived, preventing disk bloat.
+                        </p>
+                    </div>
+
+                    <div class="mb-6">
+                        <h3 class="text-indigo-300 font-bold mb-3">Activity Service for Database Tracking</h3>
+                        <div class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden">
+                            <pre class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`// Services/ActivityService.cs
+public class ActivityService : IActivityService
+{
+    private readonly AbakiDb _db;
+    private readonly ILogger<ActivityService> _logger;
+    private readonly IHubContext<LogHub> _hubContext;
+
+    public ActivityService(
+        AbakiDb db,
+        ILogger<ActivityService> logger,
+        IHubContext<LogHub> hubContext)
+    {
+        _db = db;
+        _logger = logger;
+        _hubContext = hubContext;
+    }
+
+    public async Task LogAsync(
+        int repoId,
+        ActivityType type,
+        string message)
+    {
+        _logger.LogInformation(
+            "Recording activity: {Type} for repo {RepoId}",
+            type,
+            repoId
+        );
+
+        // Create persistent activity record
+        var activity = new Activity
+        {
+            RepoId = repoId,
+            Type = type,
+            Message = message,
+            Timestamp = DateTime.UtcNow
+        };
+
+        _db.Activities.Add(activity);
+        await _db.SaveChangesAsync();
+
+        // Convert to DTO for transmission
+        var activityDto = new ActivityDto
+        {
+            Id = activity.Id,
+            RepoId = activity.RepoId,
+            Type = activity.Type.ToString(),
+            Message = activity.Message,
+            Timestamp = activity.Timestamp
+        };
+
+        // Broadcast to all connected clients
+        await _hubContext.Clients.All.SendAsync("ActivityLogged", activityDto);
+    }
+
+    public async Task<List<ActivityDto>> GetActivitiesAsync(int repoId)
+    {
+        var activities = await _db.Activities
+            .Where(a => a.RepoId == repoId)
+            .OrderByDescending(a => a.Timestamp)
+            .Take(100)  // Limit to recent activities
+            .ToListAsync();
+
+        return activities.Select(a => new ActivityDto
+        {
+            Id = a.Id,
+            RepoId = a.RepoId,
+            Type = a.Type.ToString(),
+            Message = a.Message,
+            Timestamp = a.Timestamp
+        }).ToList();
+    }
+}`}</code></pre>
+                        </div>
+                        <p class="text-gray-400 text-sm mt-2">
+                            Activities are saved to the database (persistent audit trail) and simultaneously broadcast via SignalR 
+                            (real-time UI updates).
+                        </p>
+                    </div>
+
+                    <div class="mb-6">
+                        <h3 class="text-indigo-300 font-bold mb-3">SignalR Hub for Real-time Communication</h3>
+                        <div class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden">
+                            <pre class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`// Hubs/LogHub.cs
+using Microsoft.AspNetCore.SignalR;
+using System.Threading.Tasks;
+
+public class LogHub : Hub
+{
+    private readonly ILogger<LogHub> _logger;
+
+    public LogHub(ILogger<LogHub> logger)
+    {
+        _logger = logger;
+    }
+
+    // Called when a client connects
+    public override async Task OnConnectedAsync()
+    {
+        _logger.LogInformation(
+            "Client connected: {ConnectionId}",
+            Context.ConnectionId
+        );
+
+        await Clients.All.SendAsync("UserConnected", new
+        {
+            userId = Context.ConnectionId,
+            timestamp = DateTime.UtcNow
+        });
+
+        await base.OnConnectedAsync();
+    }
+
+    // Called when a client disconnects
+    public override async Task OnDisconnectedAsync(Exception? exception)
+    {
+        _logger.LogInformation(
+            "Client disconnected: {ConnectionId}",
+            Context.ConnectionId
+        );
+
+        if (exception != null)
+            _logger.LogError(exception, "Disconnection error");
+
+        await Clients.All.SendAsync("UserDisconnected", new
+        {
+            userId = Context.ConnectionId,
+            timestamp = DateTime.UtcNow
+        });
+
+        await base.OnDisconnectedAsync(exception);
+    }
+
+    // Method clients can call to receive status updates
+    public async Task SendStatusUpdate(string message)
+    {
+        _logger.LogInformation("Broadcasting status: {Message}", message);
+
+        await Clients.All.SendAsync("StatusUpdate", new
+        {
+            message = message,
+            timestamp = DateTime.UtcNow
+        });
+    }
+}`}</code></pre>
+                        </div>
+                        <p class="text-gray-400 text-sm mt-2">
+                            The Hub is intentionally minimal. Server-to-client communication happens via hubContext.Clients.All.SendAsync() 
+                            in services.
+                        </p>
+                    </div>
+
+                    <div>
+                        <h3 class="text-indigo-300 font-bold mb-3">Client-Side SignalR Connection</h3>
+                        <div class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden">
+                            <pre class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`// Client JavaScript
+const connection = new signalR
+    .HubConnectionBuilder()
+    .withUrl("/hubs/log")
+    .withAutomaticReconnect()
+    .build();
+
+// Connect to server
+connection.start()
+    .catch(err => console.error("Connection failed:", err));
+
+// Handle real-time activity updates
+connection.on("ActivityLogged", (activity) => {
+    console.log("New activity:", activity);
+    updateActivityFeed(activity);
+    showNotification(activity.message);
+});
+
+// Handle status updates
+connection.on("StatusUpdate", (status) => {
+    console.log("Status:", status.message);
+    updateStatusUI(status.message);
+});
+
+// Handle connection events
+connection.on("UserConnected", (user) => {
+    console.log("User connected:", user.userId);
+});
+
+connection.on("UserDisconnected", (user) => {
+    console.log("User disconnected:", user.userId);
+});
+
+// Handle reconnection
+connection.onreconnected(connectionId => {
+    console.log("Reconnected with ID:", connectionId);
+    refreshActivityFeed();  // Catch up on missed events
+});
+`}</code></pre>
+                        </div>
+                        <p class="text-gray-400 text-sm mt-2">
+                            The client establishes a WebSocket connection and listens for real-time events from the server. 
+                            Automatic reconnection handles network interruptions.
+                        </p>
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Technology Stack</h2>
+                    <div class="flex flex-wrap gap-3">
+                        {['C#', 'Serilog', 'SignalR', 'WebSockets', 'ILogger<T>', 'Entity Framework Core', 'JavaScript', 'TypeScript'].map((tech) => (
+                            <span class="rounded-full border border-indigo-500/30 bg-indigo-500/10 px-4 py-2 text-sm font-medium text-indigo-300">
+                                {tech}
+                            </span>
+                        ))}
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Results & Impact</h2>
+                    <p class="text-gray-300 leading-relaxed">
+                        The logging and real-time system provides:
+                    </p>
+                    <ul class="space-y-2 text-gray-300 mt-3">
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3">✓</span>
+                            <span><strong>Comprehensive Audit Trail:</strong> Every significant operation is logged for compliance and debugging</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3">✓</span>
+                            <span><strong>Responsive UI:</strong> Clients receive real-time updates without polling, improving user experience</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3">✓</span>
+                            <span><strong>Production Insights:</strong> Structured logging enables filtering and analysis of application behavior</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3">✓</span>
+                            <span><strong>Disk-Friendly Rotation:</strong> Automatic log rotation prevents disk space exhaustion</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3">✓</span>
+                            <span><strong>Scalable Broadcasting:</strong> SignalR efficiently handles hundreds of concurrent WebSocket connections</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3">✓</span>
+                            <span><strong>Dual-Layer Logging:</strong> Files for persistence + Database for querying + WebSocket for real-time</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Best Practices Applied</h2>
+                    <ul class="space-y-2 text-gray-300">
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3">•</span>
+                            <span>Structured logging with named properties for better searchability</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3">•</span>
+                            <span>Log levels (Information, Warning, Error) to separate signal from noise</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3">•</span>
+                            <span>Automatic file rotation to manage disk space</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3">•</span>
+                            <span>SignalR automatic reconnection for resilient WebSocket connections</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3">•</span>
+                            <span>Async/await throughout to prevent blocking operations</span>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+        </article>
+    </main>
+</Layout>

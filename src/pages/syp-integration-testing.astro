@@ -1,0 +1,374 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Integration Testing with JUnit & Spring Boot Test - SYP">
+    <main class="mx-auto max-w-4xl px-6 py-12 md:py-20">
+        <a href="/syp-overview" class="mb-8 inline-flex items-center text-sm font-medium text-indigo-400 hover:text-indigo-300">
+            <span class="mr-2">&larr;</span>
+            Back to SYP Overview
+        </a>
+
+        <article>
+            <header class="mb-12">
+                <h1 class="mb-4 text-4xl font-extrabold tracking-tight sm:text-5xl text-white">
+                    Integration Testing with JUnit & Spring Boot Test
+                </h1>
+                <p class="text-lg text-gray-400">
+                    Comprehensive testing strategy: unit tests with mocking, integration tests with Spring context, and fixtures for test data
+                </p>
+            </header>
+
+            <section class="prose prose-invert max-w-none space-y-8">
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Overview</h2>
+                    <p class="text-gray-300 leading-relaxed">
+                        Testing is how we ensure code works before it reaches production. I implemented a comprehensive testing strategy: 
+                        unit tests with Mockito for individual methods, integration tests using Spring Boot Test context, and test fixtures 
+                        for consistent test data. This gives confidence that features work and prevents regressions.
+                    </p>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Learning Journey</h2>
+                    <div class="space-y-3 text-gray-300">
+                        <div>
+                            <h3 class="text-indigo-300 font-bold mb-1">🧪 Challenge: Test Types</h3>
+                            <p>
+                                Not all tests are equal. Unit tests verify individual methods. Integration tests verify the whole stack 
+                                (database, services, controllers). Learned when to use each for optimal coverage and speed.
+                            </p>
+                        </div>
+                        <div>
+                            <h3 class="text-indigo-300 font-bold mb-1">🎭 Challenge: Mocking Dependencies</h3>
+                            <p>
+                                Services depend on DAOs, email, etc. Can't test these with real implementations (too slow, external 
+                                dependencies). Learned Mockito to create mock objects for controlled testing.
+                            </p>
+                        </div>
+                        <div>
+                            <h3 class="text-indigo-300 font-bold mb-1">📊 Challenge: Consistent Test Data</h3>
+                            <p>
+                                Tests need predictable data. Created fixtures (builder objects) to consistently create test users, items, 
+                                and bids. Prevents random failures from inconsistent test data.
+                            </p>
+                        </div>
+                        <div>
+                            <h3 class="text-indigo-300 font-bold mb-1">⚡ Challenge: Test Speed</h3>
+                            <p>
+                                Integration tests with database are slower. Use unit tests for fast feedback, integration tests for critical 
+                                paths. Balanced testing pyramid.
+                            </p>
+                        </div>
+                        <div>
+                            <h3 class="text-indigo-300 font-bold mb-1">✅ Key Learning</h3>
+                            <p>
+                                Good tests catch bugs early, enable refactoring with confidence, and document expected behavior. Testing 
+                                is an investment in code quality.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Key Implementation</h2>
+                    
+                    <div class="mb-6">
+                        <h3 class="text-indigo-300 font-bold mb-3">Unit Test with Mockito</h3>
+                        <div class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden">
+                            <pre class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`// SponsorServiceImplTest.java - Unit Test
+@ExtendWith(MockitoExtension.class)  // JUnit 5 with Mockito
+public class SponsorServiceImplTest {
+    
+    @Mock
+    private SponsorDao sponsorDao;
+    
+    @InjectMocks
+    private SponsorServiceImpl sponsorService;
+
+    @Test
+    void testSaveValid() {
+        // Arrange
+        SponsorDto dto = new SponsorDto(null, "New Sponsor", "Contact");
+        Sponsor entity = new Sponsor(1L, "New Sponsor", "Contact");
+        
+        when(sponsorDao.findByName("New Sponsor")).thenReturn(Optional.empty());
+        when(sponsorDao.save(any(Sponsor.class))).thenReturn(entity);
+
+        // Act
+        SponsorDto result = sponsorService.save(dto);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1L, result.getId());
+        assertEquals("New Sponsor", result.getName());
+        
+        verify(sponsorDao, times(1)).save(any(Sponsor.class));
+    }
+
+    @Test
+    void testSaveDuplicate() {
+        // Arrange
+        SponsorDto dto = new SponsorDto(null, "Existing", "Contact");
+        Sponsor existing = new Sponsor(5L, "Existing", "Contact");
+        
+        when(sponsorDao.findByName("Existing")).thenReturn(Optional.of(existing));
+
+        // Act & Assert
+        assertThrows(SponsorAlreadyExistsException.class, () -> {
+            sponsorService.save(dto);
+        });
+        
+        verify(sponsorDao, never()).save(any());
+    }
+
+    @Test
+    void testGetPaginatedWithPagination() {
+        // Arrange
+        Sponsor sponsor1 = new Sponsor(1L, "A", "Contact");
+        Sponsor sponsor2 = new Sponsor(2L, "B", "Contact");
+        Page<Sponsor> page = new PageImpl<>(List.of(sponsor1, sponsor2));
+        
+        when(sponsorDao.findAll(any(Pageable.class))).thenReturn(page);
+
+        // Act
+        Page<SponsorDto> result = sponsorService.getSponsorsDtoPaginated(0, 10, "name", "ASC");
+
+        // Assert
+        assertEquals(2, result.getContent().size());
+        verify(sponsorDao, times(1)).findAll(any(Pageable.class));
+    }
+}`}</code></pre>
+                        </div>
+                        <p class="text-gray-400 text-sm mt-2">
+                            Unit tests use @Mock to create fake DAOs. @InjectMocks injects mocks into service. Fast and isolated.
+                        </p>
+                    </div>
+
+                    <div class="mb-6">
+                        <h3 class="text-indigo-300 font-bold mb-3">Integration Test with Spring Boot Test</h3>
+                        <div class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden">
+                            <pre class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`// ItemServiceIntegrationTest.java
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@Transactional  // Rollback after each test
+public class ItemServiceIntegrationTest {
+    
+    @Autowired
+    private ItemService itemService;
+    
+    @Autowired
+    private UserRepository userRepository;
+    
+    @Autowired
+    private ItemRepository itemRepository;
+    
+    private TestFixture fixture;
+
+    @BeforeEach
+    void setup() {
+        fixture = new TestFixture(userRepository, itemRepository);
+        fixture.clearAll();
+    }
+
+    @Test
+    void testPlaceBidSuccess() {
+        // Arrange - Use fixtures for consistent data
+        User bidder = fixture.createUser("bidder@example.com");
+        Item item = fixture.createItem("Test Item", item -> {
+            item.setCurrentBid(BigDecimal.valueOf(50));
+        });
+
+        BidDto bidDto = new BidDto();
+        bidDto.setItemId(item.getId());
+        bidDto.setAmount(BigDecimal.valueOf(75));
+        bidDto.setUserId(bidder.getId());
+
+        // Act
+        BidDto result = itemService.placeBid(bidDto);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(BigDecimal.valueOf(75), result.getAmount());
+        
+        // Verify in database
+        Item updatedItem = itemRepository.findById(item.getId()).orElseThrow();
+        assertEquals(BigDecimal.valueOf(75), updatedItem.getCurrentBid());
+    }
+
+    @Test
+    void testPlaceBidTooLow() {
+        // Arrange
+        User bidder = fixture.createUser("bidder@example.com");
+        Item item = fixture.createItem("Test Item", item -> {
+            item.setCurrentBid(BigDecimal.valueOf(100));
+        });
+
+        BidDto bidDto = new BidDto();
+        bidDto.setItemId(item.getId());
+        bidDto.setAmount(BigDecimal.valueOf(50));  // Lower than current
+        bidDto.setUserId(bidder.getId());
+
+        // Act & Assert
+        assertThrows(IntendedException.class, () -> {
+            itemService.placeBid(bidDto);
+        });
+    }
+
+    @Test
+    void testGetItemsPaginated() {
+        // Arrange - Create multiple items
+        for (int i = 0; i < 25; i++) {
+            fixture.createItem("Item " + i);
+        }
+
+        // Act
+        Page<ItemDto> page1 = itemService.getItemsDtoPaginated(0, 10, "name", "ASC");
+        Page<ItemDto> page2 = itemService.getItemsDtoPaginated(1, 10, "name", "ASC");
+
+        // Assert
+        assertEquals(10, page1.getContent().size());
+        assertEquals(10, page2.getContent().size());
+        assertEquals(25, page1.getTotalElements());
+        assertEquals(3, page1.getTotalPages());
+    }
+}`}</code></pre>
+                        </div>
+                        <p class="text-gray-400 text-sm mt-2">
+                            Integration tests load full Spring context. @Transactional rolls back each test for isolation. 
+                            Tests the entire stack with real database.
+                        </p>
+                    </div>
+
+                    <div>
+                        <h3 class="text-indigo-300 font-bold mb-3">Test Fixtures for Consistent Data</h3>
+                        <div class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden">
+                            <pre class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`// TestFixture.java - Reusable Test Data Builder
+public class TestFixture {
+    private final UserRepository userRepository;
+    private final ItemRepository itemRepository;
+    private int userCounter = 1;
+    private int itemCounter = 1;
+
+    public User createUser(String email) {
+        return createUser(email, user -> {});
+    }
+
+    public User createUser(String email, Consumer<User> modifier) {
+        User user = new User();
+        user.setEmail(email);
+        user.setFirstName("Test");
+        user.setLastName("User" + userCounter++);
+        user.setPasswordHash("hashedpassword");
+        
+        modifier.accept(user);
+        
+        return userRepository.save(user);
+    }
+
+    public Item createItem(String name) {
+        return createItem(name, item -> {});
+    }
+
+    public Item createItem(String name, Consumer<Item> modifier) {
+        Item item = new Item();
+        item.setName(name);
+        item.setDescription("Test item " + itemCounter);
+        item.setCreatedBy(createUser("seller" + itemCounter + "@example.com"));
+        item.setCurrentBid(BigDecimal.ZERO);
+        item.setStatus(new Status(2L, "ACTIVE"));  // ACTIVE status
+        
+        modifier.accept(item);
+        
+        return itemRepository.save(item);
+    }
+
+    public void clearAll() {
+        itemRepository.deleteAll();
+        userRepository.deleteAll();
+    }
+}`}</code></pre>
+                        </div>
+                        <p class="text-gray-400 text-sm mt-2">
+                            Fixtures create test data with sensible defaults. Consumer functions allow customization. 
+                            Reduces test boilerplate and improves readability.
+                        </p>
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Testing Strategy</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="p-4 rounded-lg bg-indigo-500/10 border border-indigo-500/30">
+                            <h3 class="text-indigo-300 font-bold mb-2">🚀 Unit Tests (Fast)</h3>
+                            <ul class="text-gray-300 text-sm space-y-1">
+                                <li>• Test individual methods</li>
+                                <li>• Mock all dependencies</li>
+                                <li>• Run in seconds</li>
+                                <li>• Most tests should be here</li>
+                            </ul>
+                        </div>
+                        <div class="p-4 rounded-lg bg-indigo-500/10 border border-indigo-500/30">
+                            <h3 class="text-indigo-300 font-bold mb-2">🔗 Integration Tests (Slower)</h3>
+                            <ul class="text-gray-300 text-sm space-y-1">
+                                <li>• Test service + database</li>
+                                <li>• Full Spring context</li>
+                                <li>• Run in seconds</li>
+                                <li>• Critical paths only</li>
+                            </ul>
+                        </div>
+                        <div class="p-4 rounded-lg bg-indigo-500/10 border border-indigo-500/30">
+                            <h3 class="text-indigo-300 font-bold mb-2">🌐 E2E Tests (Slowest)</h3>
+                            <ul class="text-gray-300 text-sm space-y-1">
+                                <li>• Test full API endpoints</li>
+                                <li>• TestRestTemplate</li>
+                                <li>• Run in minutes</li>
+                                <li>• Smoke tests only</li>
+                            </ul>
+                        </div>
+                        <div class="p-4 rounded-lg bg-indigo-500/10 border border-indigo-500/30">
+                            <h3 class="text-indigo-300 font-bold mb-2">📊 Testing Pyramid</h3>
+                            <ul class="text-gray-300 text-sm space-y-1">
+                                <li>• Many unit tests (base)</li>
+                                <li>• Some integration tests</li>
+                                <li>• Few E2E tests (top)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Technology Stack</h2>
+                    <div class="flex flex-wrap gap-3">
+                        {['JUnit 5', 'Mockito', 'Spring Boot Test', '@SpringBootTest', 'TestFixture', '@Transactional', 'Page<T>'].map((tech) => (
+                            <span class="rounded-full border border-indigo-500/30 bg-indigo-500/10 px-4 py-2 text-sm font-medium text-indigo-300">
+                                {tech}
+                            </span>
+                        ))}
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Results & Impact</h2>
+                    <ul class="space-y-2 text-gray-300">
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3">✓</span>
+                            <span><strong>Fast Feedback:</strong> Unit tests run in seconds, catch bugs immediately</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3">✓</span>
+                            <span><strong>Confidence in Refactoring:</strong> Tests ensure changes don't break existing behavior</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3">✓</span>
+                            <span><strong>Living Documentation:</strong> Tests show how code is supposed to be used</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3">✓</span>
+                            <span><strong>Reduced Manual Testing:</strong> Automated tests catch regressions early</span>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+        </article>
+    </main>
+</Layout>

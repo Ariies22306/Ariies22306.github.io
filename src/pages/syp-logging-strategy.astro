@@ -1,0 +1,258 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Structured Logging with Log4j2 - SYP">
+    <main class="mx-auto max-w-4xl px-6 py-12 md:py-20">
+        <a href="/syp-overview" class="mb-8 inline-flex items-center text-sm font-medium text-indigo-400 hover:text-indigo-300">
+            <span class="mr-2">&larr;</span>
+            Back to SYP Overview
+        </a>
+
+        <article>
+            <header class="mb-12">
+                <h1 class="mb-4 text-4xl font-extrabold tracking-tight sm:text-5xl text-white">
+                    Structured Logging with Log4j2
+                </h1>
+                <p class="text-lg text-gray-400">
+                    Implementing production-ready logging with file rotation, levels, and structured output for observability
+                </p>
+            </header>
+
+            <section class="prose prose-invert max-w-none space-y-8">
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Overview</h2>
+                    <p class="text-gray-300 leading-relaxed">
+                        Logging is how we understand what's happening in production. I implemented Log4j2 with structured logging, 
+                        file rotation to prevent disk bloat, different log levels for different purposes, and patterns that make 
+                        logs searchable and queryable. This is essential for debugging issues and monitoring system health.
+                    </p>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Learning Journey</h2>
+                    <div class="space-y-3 text-gray-300">
+                        <div>
+                            <h3 class="text-indigo-300 font-bold mb-1">📝 Challenge: Choosing a Logging Framework</h3>
+                            <p>
+                                Java has many logging frameworks (SLF4J, java.util.logging, Logback). Chose Log4j2 for better 
+                                performance, async logging, and fine-grained configuration control.
+                            </p>
+                        </div>
+                        <div>
+                            <h3 class="text-indigo-300 font-bold mb-1">💾 Challenge: Disk Space Management</h3>
+                            <p>
+                                Applications log continuously. Log files grow indefinitely without rotation. Configured monthly 
+                                rotation so old logs are archived and new files start fresh each month.
+                            </p>
+                        </div>
+                        <div>
+                            <h3 class="text-indigo-300 font-bold mb-1">🔍 Challenge: Findable Logs</h3>
+                            <p>
+                                Random log entries are useless. Implemented structured logging with patterns including timestamps, 
+                                thread names, class names, and log levels. Makes grep-ing through logs productive.
+                            </p>
+                        </div>
+                        <div>
+                            <h3 class="text-indigo-300 font-bold mb-1">⚡ Challenge: Performance</h3>
+                            <p>
+                                Disk I/O is slow. Configured async logging (via queue) so logging doesn't block application threads. 
+                                Logs are buffered and written in batches.
+                            </p>
+                        </div>
+                        <div>
+                            <h3 class="text-indigo-300 font-bold mb-1">✅ Key Learning</h3>
+                            <p>
+                                Structured logging with proper configuration is foundational for operating systems in production. 
+                                It's often the only clue we have when things go wrong.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Key Implementation</h2>
+                    
+                    <div class="mb-6">
+                        <h3 class="text-indigo-300 font-bold mb-3">Log4j2 Configuration (log4j2.xml)</h3>
+                        <div class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden">
+                            <pre class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+    <Properties>
+        <!-- Log Pattern: Date | Thread | Class | Level | Message -->
+        <Property name="LOG_PATTERN">%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %c{1} - %m%n</Property>
+    </Properties>
+
+    <Appenders>
+        <!-- Console Output (Development) -->
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %highlight{%-5p}{FATAL=red, ERROR=red, WARN=yellow, INFO=green, DEBUG=blue, TRACE=blue} %c{1} - %m%n" />
+        </Console>
+
+        <!-- Rolling File Appender - Monthly Rotation -->
+        <RollingFile name="RollingFile" fileName="logs/syp.log" filePattern="logs/%d{yyyy-MM}.log">
+            <PatternLayout pattern="\${LOG_PATTERN}" />
+            
+            <!-- Trigger rotation at the beginning of each month -->
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true" />
+            </Policies>
+            
+            <!-- Keep last 12 months of logs -->
+            <DefaultRolloverStrategy max="12" />
+        </RollingFile>
+
+        <!-- Async Appender - Wraps RollingFile for non-blocking I/O -->
+        <Async name="AsyncRollingFile" blockingQueue="RingBuffer" includeLocation="false">
+            <AppenderRef ref="RollingFile" />
+        </Async>
+    </Appenders>
+
+    <Loggers>
+        <!-- Application Loggers -->
+        <Logger name="com.example.syp" level="info" />
+        
+        <!-- Spring Framework (less verbose) -->
+        <Logger name="org.springframework" level="warn" />
+        
+        <!-- Hibernate (SQL query logging - useful for debugging) -->
+        <Logger name="org.hibernate.SQL" level="debug" />
+        <Logger name="org.hibernate.type.descriptor.sql" level="trace" />
+        
+        <!-- Root Logger - All logs that don't match above -->
+        <Root level="info">
+            <AppenderRef ref="Console" />
+            <AppenderRef ref="AsyncRollingFile" />
+        </Root>
+    </Loggers>
+</Configuration>`}</code></pre>
+                        </div>
+                        <p class="text-gray-400 text-sm mt-2">
+                            Monthly rotation with timezone-aware triggers. Async appender prevents logging from blocking application threads. 
+                            Keeps 12 months of history.
+                        </p>
+                    </div>
+
+                    <div class="mb-6">
+                        <h3 class="text-indigo-300 font-bold mb-3">Using Log4j2 in Services</h3>
+                        <div class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden">
+                            <pre class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`// UserService.java - Example Logging Usage
+@Service
+public class UserServiceImpl implements UserService {
+    private static final Logger logger = LogManager.getLogger(UserServiceImpl.class);
+
+    @Override
+    public UserDto register(UserRegistrationRequest request) {
+        logger.info("User registration request for: {}", request.getEmail());
+        
+        // Validate input
+        if (request.getEmail() == null || request.getEmail().isEmpty()) {
+            logger.warn("Invalid registration attempt: email is empty");
+            throw new ValidationException("Email is required");
+        }
+        
+        // Check for duplicate
+        Optional<User> existing = userDao.findByEmail(request.getEmail());
+        if (existing.isPresent()) {
+            logger.warn("Registration attempt for existing email: {}", request.getEmail());
+            throw new UserAlreadyExistsException("User already registered");
+        }
+        
+        try {
+            User user = new User();
+            user.setEmail(request.getEmail());
+            user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
+            
+            User saved = userDao.save(user);
+            logger.info("User registered successfully with ID: {}", saved.getId());
+            
+            return mapToDto(saved);
+        } catch (Exception e) {
+            logger.error("Error registering user: {}", request.getEmail(), e);
+            throw new RuntimeException("Registration failed", e);
+        }
+    }
+
+    @Override
+    public Page<UserDto> getAllUsers(int page, int size) {
+        logger.debug("Fetching users page {} with size {}", page, size);
+        
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<User> users = userDao.findAll(pageable);
+        
+        logger.debug("Found {} users on page {}", users.getNumberOfElements(), page);
+        return users.map(this::mapToDto);
+    }
+}`}</code></pre>
+                        </div>
+                        <p class="text-gray-400 text-sm mt-2">
+                            Different log levels: INFO for important business events, WARN for potential issues, DEBUG for debugging, ERROR for failures.
+                        </p>
+                    </div>
+
+                    <div>
+                        <h3 class="text-indigo-300 font-bold mb-3">Log Files in Production</h3>
+                        <div class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden">
+                            <pre class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`# Directory structure with monthly rotation
+logs/
+├── syp.log                 # Current month's logs (active file)
+├── 2025-05.log             # May 2025 (archived)
+├── 2025-06.log             # June 2025 (archived)
+├── 2025-11.log             # November 2025 (archived)
+└── ...
+
+# Example log file content (syp.log)
+2025-11-15 09:23:45 [main] INFO  UserServiceImpl - User registration request for: john@example.com
+2025-11-15 09:23:46 [http-nio-8080-exec-1] INFO  UserServiceImpl - User registered successfully with ID: 42
+2025-11-15 09:24:12 [http-nio-8080-exec-2] INFO  ItemServiceImpl - Fetching items page 0 with size 20
+2025-11-15 09:24:13 [http-nio-8080-exec-2] DEBUG ItemServiceImpl - Found 20 items on page 0
+2025-11-15 09:25:01 [http-nio-8080-exec-3] WARN  BidServiceImpl - Bid amount too low for item 5: current=€100, attempted=€95
+2025-11-15 09:26:44 [async-exec-pool-1] ERROR EmailServiceImpl - Failed to send verification email to jane@example.com, cause: SMTP timeout
+
+# Query logs with grep
+$ grep ERROR logs/*.log                    # All errors
+$ grep "item ID: 42" logs/*.log            # Find logs for specific item
+$ grep -E "WARN|ERROR" logs/2025-11.log   # Warnings and errors this month`}</code></pre>
+                        </div>
+                        <p class="text-gray-400 text-sm mt-2">
+                            Structured format makes logs searchable with grep. Monthly files prevent any single file from getting too large.
+                        </p>
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Technology Stack</h2>
+                    <div class="flex flex-wrap gap-3">
+                        {['Log4j2', 'RollingFile Appender', 'Async Appender', 'PatternLayout', 'TimeBasedTriggeringPolicy', 'Structured Logging'].map((tech) => (
+                            <span class="rounded-full border border-indigo-500/30 bg-indigo-500/10 px-4 py-2 text-sm font-medium text-indigo-300">
+                                {tech}
+                            </span>
+                        ))}
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Results & Impact</h2>
+                    <ul class="space-y-2 text-gray-300">
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3">✓</span>
+                            <span><strong>Searchable History:</strong> Months of logs with clear structure, easy to grep/filter</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3">✓</span>
+                            <span><strong>No Disk Bloat:</strong> Monthly rotation keeps disk usage predictable</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3">✓</span>
+                            <span><strong>Non-blocking I/O:</strong> Async appender prevents logging from slowing down requests</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3">✓</span>
+                            <span><strong>Production-Ready:</strong> Works across environments with same configuration</span>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+        </article>
+    </main>
+</Layout>

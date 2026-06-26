@@ -1,0 +1,313 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="AI-Powered Code Auto-Fix Engine - Abaki">
+    <main class="mx-auto max-w-4xl px-6 py-12 md:py-20">
+        <a href="/abaki-overview" class="mb-8 inline-flex items-center text-sm font-medium text-indigo-400 hover:text-indigo-300">
+            <span class="mr-2">&larr;</span>
+            Back to Abaki Overview
+        </a>
+
+        <article>
+            <header class="mb-12">
+                <h1 class="mb-4 text-4xl font-extrabold tracking-tight sm:text-5xl text-white">
+                    AI-Powered Code Auto-Fix Engine
+                </h1>
+                <p class="text-lg text-gray-400">
+                    Building an async streaming HTTP client that communicates with a Python AI service for code repairs
+                </p>
+            </header>
+
+            <section class="prose prose-invert max-w-none space-y-8">
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Overview</h2>
+                    <p class="text-gray-300 leading-relaxed">
+                        The AutoFix engine is the intelligence behind Abaki. It communicates with an external Python service 
+                        running AI models (specifically Google's Gemini Flash) to analyze code and suggest fixes. Rather than 
+                        waiting for a single response, Abaki streams tokens in real-time, allowing the frontend to show live 
+                        code suggestions as they're being generated.
+                    </p>
+                    <p class="text-gray-300 leading-relaxed mt-4">
+                        This was the most challenging component to build, as it required mastering async streaming, handling 
+                        event-based responses, and coordinating between multiple services.
+                    </p>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Learning Journey</h2>
+                    <div class="space-y-3 text-gray-300">
+                        <div>
+                            <h3 class="text-indigo-300 font-bold mb-1">🔄 Challenge 1: Streaming HTTP Responses</h3>
+                            <p>
+                                Initially tried using regular HttpClient.GetAsync(), which waits for the entire response. 
+                                Learned to use HttpCompletionOption.ResponseHeadersRead to start processing before the response 
+                                is complete. This enabled true streaming behavior.
+                            </p>
+                        </div>
+                        <div>
+                            <h3 class="text-indigo-300 font-bold mb-1">📡 Challenge 2: Server-Sent Events (SSE) Parsing</h3>
+                            <p>
+                                The Python service sends responses as Server-Sent Events (SSE) format with event types and data 
+                                payloads. Spent time understanding the "event:" and "data:" prefixes, handling line breaks correctly, 
+                                and buffering incomplete lines.
+                            </p>
+                        </div>
+                        <div>
+                            <h3 class="text-indigo-300 font-bold mb-1">⚡ Challenge 3: Real-time Token Processing</h3>
+                            <p>
+                                Each token arrives asynchronously. Implemented callback functions (onStatusReceived, onTokenReceived, 
+                                onDoneReceived) to handle different event types. Learned about async delegation patterns and 
+                                proper error handling in callback chains.
+                            </p>
+                        </div>
+                        <div>
+                            <h3 class="text-indigo-300 font-bold mb-1">🛡️ Challenge 4: Error Resilience</h3>
+                            <p>
+                                The external service might disconnect or timeout. Implemented proper exception handling, retry logic, 
+                                and graceful degradation. This taught me the importance of defensive programming when dealing with 
+                                external services.
+                            </p>
+                        </div>
+                        <div>
+                            <h3 class="text-indigo-300 font-bold mb-1">✅ Key Learning</h3>
+                            <p>
+                                Async streaming is powerful but complex. Understanding HTTP completion options, proper resource 
+                                cleanup (using statements), and callback-based event handling is crucial for real-time systems.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Key Code Implementation</h2>
+                    
+                    <div class="mb-6">
+                        <h3 class="text-indigo-300 font-bold mb-3">Streaming Request Setup</h3>
+                        <div class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden">
+                            <pre class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`// AutoFixService.cs
+public async Task SendAutoFixStreamAsync(
+    AutoFixRequest request,
+    Func<Task>? onRequestSent = null,
+    Func<string, StatusOrErrorPayload, Task>? onStatusOrErrorReceived = null,
+    Func<TokenPayload, Task>? onTokenReceived = null,
+    Func<DonePayload, Task>? onDoneReceived = null)
+{
+    if (request == null) 
+        throw new BadRequestException("AutoFixRequest cannot be null.");
+
+    _logger.LogInformation(
+        "Sending AutoFix stream request to {Url} for repo {Repo}", 
+        _streamUrl, 
+        request.RepoUrl
+    );
+
+    var content = CreateJsonContent(request);
+    using var requestMessage = new HttpRequestMessage(HttpMethod.Post, _streamUrl) 
+    { 
+        Content = content 
+    };
+
+    HttpResponseMessage response;
+    try
+    {
+        // ResponseHeadersRead: Start processing BEFORE full response is received
+        response = await _httpClient.SendAsync(
+            requestMessage, 
+            HttpCompletionOption.ResponseHeadersRead
+        );
+        if (onRequestSent != null) 
+            await onRequestSent.Invoke();
+    }
+    catch (HttpRequestException ex)
+    {
+        _logger.LogError(ex, "Failed to connect to Python service at {Url}", _streamUrl);
+        throw new ExternalServiceException(
+            $"Could not connect to AutoFix service: {ex.Message}"
+        );
+    }
+
+    await EnsureSuccessResponseAsync(response);
+}`}</code></pre>
+                        </div>
+                        <p class="text-gray-400 text-sm mt-2">
+                            HttpCompletionOption.ResponseHeadersRead is key—it allows processing to begin without waiting for the entire response body.
+                        </p>
+                    </div>
+
+                    <div class="mb-6">
+                        <h3 class="text-indigo-300 font-bold mb-3">Parsing Server-Sent Events</h3>
+                        <div class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden">
+                            <pre class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`// AutoFixService.cs - Stream Parsing
+using var stream = await response.Content.ReadAsStreamAsync();
+using var reader = new StreamReader(stream);
+
+string currentEvent = "message";
+var parseOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+
+while (!reader.EndOfStream)
+{
+    var line = await reader.ReadLineAsync();
+    if (string.IsNullOrWhiteSpace(line)) 
+        continue;
+
+    // Extract event type (event: status, event: token, etc.)
+    if (line.StartsWith("event:"))
+    {
+        currentEvent = line.Substring(6).Trim();
+    }
+    // Extract JSON data payload (data: {...})
+    else if (line.StartsWith("data:"))
+    {
+        var rawJson = line.Substring(5).Trim();
+
+        // Check for stream termination
+        if (rawJson == "[DONE]") 
+            break;
+
+        try
+        {
+            switch (currentEvent.ToLowerInvariant())
+            {
+                case "status":
+                case "error":
+                    var statusData = JsonSerializer.Deserialize<StatusOrErrorPayload>(
+                        rawJson, 
+                        parseOptions
+                    );
+                    if (statusData != null && onStatusOrErrorReceived != null)
+                        await onStatusOrErrorReceived(currentEvent.ToLowerInvariant(), statusData);
+                    break;
+
+                case "token":
+                    var tokenData = JsonSerializer.Deserialize<TokenPayload>(
+                        rawJson, 
+                        parseOptions
+                    );
+                    if (tokenData != null && onTokenReceived != null)
+                        await onTokenReceived(tokenData);
+                    break;
+
+                case "done":
+                    var doneData = JsonSerializer.Deserialize<DonePayload>(
+                        rawJson, 
+                        parseOptions
+                    );
+                    if (doneData != null && onDoneReceived != null)
+                        await onDoneReceived(doneData);
+                    break;
+            }
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogWarning(ex, "Failed to parse SSE payload: {Payload}", rawJson);
+        }
+    }
+}
+`}</code></pre>
+                        </div>
+                        <p class="text-gray-400 text-sm mt-2">
+                            The SSE format requires parsing "event:" and "data:" prefixes and handling JSON deserialization for each payload.
+                        </p>
+                    </div>
+
+                    <div>
+                        <h3 class="text-indigo-300 font-bold mb-3">Using the Stream with Callbacks</h3>
+                        <div class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden">
+                            <pre class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`// RepoController.cs - Consuming the Stream
+public async Task<IActionResult> TriggerAutoFixAsync(int id, [FromBody] AutoFixRequest request)
+{
+    var repo = await _repoService.GetByIdAsync(id);
+    if (repo == null)
+        return NotFound();
+
+    try
+    {
+        // Define callbacks to handle stream events
+        await _autoFixService.SendAutoFixStreamAsync(
+            request,
+            
+            onRequestSent: async () =>
+            {
+                _logger.LogInformation("AutoFix request sent to Python service");
+            },
+            
+            onStatusOrErrorReceived: async (eventType, status) =>
+            {
+                _logger.LogInformation("Status: {Message}", status.Message);
+                // Broadcast to connected WebSocket clients via SignalR
+                await _hubContext.Clients.All.SendAsync("Status", status);
+            },
+            
+            onTokenReceived: async (token) =>
+            {
+                _logger.LogDebug("Token received: {Token}", token.Token);
+                // Stream each token to frontend in real-time
+                await _hubContext.Clients.All.SendAsync("Token", token);
+            },
+            
+            onDoneReceived: async (done) =>
+            {
+                _logger.LogInformation("AutoFix complete");
+                await _hubContext.Clients.All.SendAsync("Done", done);
+            }
+        );
+
+        return Ok(new { message = "AutoFix processing complete" });
+    }
+    catch (ExternalServiceException ex)
+    {
+        _logger.LogError(ex, "AutoFix service failed");
+        return StatusCode(503, new { error = "AutoFix service unavailable" });
+    }
+}`}</code></pre>
+                        </div>
+                        <p class="text-gray-400 text-sm mt-2">
+                            Callbacks are async functions that handle each event. SignalR broadcasts updates to all connected clients in real-time.
+                        </p>
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Technology Stack</h2>
+                    <div class="flex flex-wrap gap-3">
+                        {['C#', 'HttpClient', 'Server-Sent Events', 'Async/Await', 'StreamReader', 'JSON Serialization', 'SignalR', 'Callbacks'].map((tech) => (
+                            <span class="rounded-full border border-indigo-500/30 bg-indigo-500/10 px-4 py-2 text-sm font-medium text-indigo-300">
+                                {tech}
+                            </span>
+                        ))}
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Results & Impact</h2>
+                    <p class="text-gray-300 leading-relaxed">
+                        The AutoFix engine provides:
+                    </p>
+                    <ul class="space-y-2 text-gray-300 mt-3">
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3">✓</span>
+                            <span><strong>Real-time Code Suggestions:</strong> Users see AI-generated fixes as tokens arrive, not after full completion</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3">✓</span>
+                            <span><strong>Efficient Streaming:</strong> No waiting for the entire AI response before showing results</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3">✓</span>
+                            <span><strong>Event-Driven Architecture:</strong> Different event types (status, token, error, done) allow flexible handling</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3">✓</span>
+                            <span><strong>Error Resilience:</strong> Proper exception handling ensures failures don't crash the entire system</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3">✓</span>
+                            <span><strong>Scalable Communication:</strong> Uses callbacks for loose coupling between service and controller</span>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+        </article>
+    </main>
+</Layout>

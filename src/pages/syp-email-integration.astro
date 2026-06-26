@@ -1,0 +1,301 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Email Integration with Local Testing - SYP">
+    <main class="mx-auto max-w-4xl px-6 py-12 md:py-20">
+        <a href="/syp-overview" class="mb-8 inline-flex items-center text-sm font-medium text-indigo-400 hover:text-indigo-300">
+            <span class="mr-2">&larr;</span>
+            Back to SYP Overview
+        </a>
+
+        <article>
+            <header class="mb-12">
+                <h1 class="mb-4 text-4xl font-extrabold tracking-tight sm:text-5xl text-white">
+                    Email Integration with Local Testing
+                </h1>
+                <p class="text-lg text-gray-400">
+                    Async email sending with Spring Mail, HTML templates, and local email testing with Papercut and Mailtrap
+                </p>
+            </header>
+
+            <section class="prose prose-invert max-w-none space-y-8">
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Overview</h2>
+                    <p class="text-gray-300 leading-relaxed">
+                        Sending emails is a critical feature for user verification, notifications, and auction results. I implemented 
+                        async email sending that doesn't block the main request thread, HTML templates for rich email formatting, 
+                        and integrated testing tools (Papercut and Mailtrap) to verify emails during development without spamming 
+                        real mailboxes.
+                    </p>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Learning Journey</h2>
+                    <div class="space-y-3 text-gray-300">
+                        <div>
+                            <h3 class="text-indigo-300 font-bold mb-1">📧 Challenge: Async Email Sending</h3>
+                            <p>
+                                Sending emails takes time. Can't block user requests waiting for SMTP. Learned to use Spring's 
+                                <code>@Async</code> to send emails in a background thread, improving response times significantly.
+                            </p>
+                        </div>
+                        <div>
+                            <h3 class="text-indigo-300 font-bold mb-1">🎨 Challenge: HTML Email Templates</h3>
+                            <p>
+                                Plain text emails look unprofessional. Implemented HTML email templates with CSS, images, and proper 
+                                formatting. Supports multiple languages (German, English) with fallback behavior.
+                            </p>
+                        </div>
+                        <div>
+                            <h3 class="text-indigo-300 font-bold mb-1">🧪 Challenge: Testing Without Real Emails</h3>
+                            <p>
+                                Can't send real emails during testing. Discovered Papercut (local mail server) and Mailtrap (online 
+                                service) to catch emails in development. Saves developer inboxes from spam.
+                            </p>
+                        </div>
+                        <div>
+                            <h3 class="text-indigo-300 font-bold mb-1">🔐 Challenge: Secure Token Generation</h3>
+                            <p>
+                                Email verification tokens must be cryptographically secure. Used SecureRandom to generate tokens, 
+                                then store them temporarily for validation.
+                            </p>
+                        </div>
+                        <div>
+                            <h3 class="text-indigo-300 font-bold mb-1">✅ Key Learning</h3>
+                            <p>
+                                Non-blocking email sending is essential for responsive APIs. Testing tools like Papercut prevent 
+                                real emails during development while still verifying logic works.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Key Implementation</h2>
+                    
+                    <div class="mb-6">
+                        <h3 class="text-indigo-300 font-bold mb-3">Async Email Service with Spring Mail</h3>
+                        <div class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden">
+                            <pre class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`// EmailServiceImpl.java
+@Service
+public class EmailServiceImpl implements EmailService {
+    private static final Logger logger = LogManager.getLogger(EmailServiceImpl.class);
+    private final JavaMailSender mailSender;
+    private final String fromEmail = "info@sozialkaufhauswn.at";
+
+    @Override
+    @Async  // Sends email in background thread
+    public void sendMail(String to, String subject, String body) {
+        logger.info("Sending email to {}!", to);
+        try {
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
+
+            helper.setFrom(fromEmail);
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(body, true);  // true = HTML content
+
+            mailSender.send(mimeMessage);
+            logger.info("Email sent successfully to {}", to);
+        } catch (Exception e) {
+            logger.warn("Failed to send email to {}! {}", to, e.getMessage());
+        }
+    }
+
+    @Override
+    public String generateSecureToken() {
+        logger.debug("Generating secure token");
+        byte[] randomBytes = new byte[32];  // 256-bit security
+        new SecureRandom().nextBytes(randomBytes);
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
+    }
+
+    @Override
+    public String loadEmailHtml(String language, String fileName) {
+        String primaryPath = "templates/" + fileName + language + ".html";
+        String fallbackPath = "templates/" + fileName + "En.html";
+
+        try (InputStream input = getClass().getClassLoader().getResourceAsStream(primaryPath)) {
+            if (input != null) {
+                return new String(input.readAllBytes(), StandardCharsets.UTF_8);
+            }
+        } catch (IOException e) {
+            logger.warn("Error reading template: {}", primaryPath, e);
+        }
+
+        // Fallback to English
+        try (InputStream fallback = getClass().getClassLoader().getResourceAsStream(fallbackPath)) {
+            if (fallback != null) {
+                return new String(fallback.readAllBytes(), StandardCharsets.UTF_8);
+            }
+        } catch (IOException e) {
+            logger.error("Fallback template not found: {}", fallbackPath, e);
+            throw new EmailException("Template not found");
+        }
+        
+        return "";
+    }
+}`}</code></pre>
+                        </div>
+                        <p class="text-gray-400 text-sm mt-2">
+                            <code>@Async</code> tells Spring to run this in a background thread. HTML templates support multiple languages 
+                            with fallback to English.
+                        </p>
+                    </div>
+
+                    <div class="mb-6">
+                        <h3 class="text-indigo-300 font-bold mb-3">Spring Configuration for Email</h3>
+                        <div class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden">
+                            <pre class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`# application.yaml - Development (Papercut)
+spring.mail:
+  host: 127.0.0.1
+  port: 2525
+  username:
+  password:
+  properties:
+    mail:
+      smtp:
+        auth: false
+        starttls:
+          enable: false
+
+---
+# Production (Gmail/External SMTP)
+spring.mail:
+  host: smtp.gmail.com
+  port: 587
+  username: \${MAIL_USERNAME}  # From environment
+  password: \${MAIL_PASSWORD}
+  properties:
+    mail:
+      smtp:
+        auth: true
+        starttls:
+          enable: true
+          required: true
+        connectiontimeout: 5000
+        timeout: 5000
+        writetimeout: 5000`}</code></pre>
+                        </div>
+                        <p class="text-gray-400 text-sm mt-2">
+                            Localhost:2525 for Papercut in dev. External SMTP with authentication for production.
+                        </p>
+                    </div>
+
+                    <div>
+                        <h3 class="text-indigo-300 font-bold mb-3">Using the Email Service</h3>
+                        <div class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden">
+                            <pre class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`// UserController.java - Example Usage
+@PostMapping("/register")
+public ApiResponse<UserDto> register(@RequestBody RegistrationRequest request) {
+    UserDto user = userService.createUser(request);
+    
+    // Generate verification token
+    String token = emailService.generateSecureToken();
+    // ... store token in database ...
+    
+    // Load HTML template
+    String emailBody = emailService.loadEmailHtml("De", "verification-email");
+    // Replace placeholders
+    emailBody = emailBody.replace("{userName}", user.getFirstName())
+                        .replace("{verificationLink}", 
+                            "https://example.com/verify?token=" + token);
+    
+    // Send async email (non-blocking)
+    emailService.sendMail(
+        user.getEmail(),
+        "Account Verification - Sozialkaufhaus",
+        emailBody
+    );
+    
+    return new ApiResponse<>(200, "User registered. Check your email.", user);
+}
+
+// ItemController.java - Send bid won email
+@GetMapping("/{id}")
+public void processExpiredItems() {
+    List<Bid> winners = bidService.getExpiredItemWinners();
+    
+    for (Bid bid : winners) {
+        String subject = "Congratulations! You won: " + bid.getItem().getName();
+        String body = emailService.loadEmailHtml("De", "bid-won-email")
+            .replace("{itemName}", bid.getItem().getName())
+            .replace("{finalPrice}", bid.getAmount().toString());
+        
+        // Async send
+        emailService.sendMail(bid.getUser().getEmail(), subject, body);
+    }
+}`}</code></pre>
+                        </div>
+                        <p class="text-gray-400 text-sm mt-2">
+                            Email service is injected and called from controllers. The <code>@Async</code> decorator ensures the response 
+                            is sent before email delivery completes.
+                        </p>
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Testing Strategy</h2>
+                    <div class="space-y-3 text-gray-300">
+                        <div class="p-4 rounded-lg bg-indigo-500/10 border border-indigo-500/30">
+                            <h3 class="text-indigo-300 font-bold mb-2">📧 Papercut (Local Development)</h3>
+                            <p>
+                                A local mail server running on localhost:2525 that captures all emails sent by the application. 
+                                Developers can open a UI at http://localhost:25 to see sent emails without impacting real mailboxes.
+                            </p>
+                        </div>
+                        <div class="p-4 rounded-lg bg-indigo-500/10 border border-indigo-500/30">
+                            <h3 class="text-indigo-300 font-bold mb-2">📊 Mailtrap (Integration Testing)</h3>
+                            <p>
+                                Online service that provides SMTP credentials. Emails are captured on their servers, allowing 
+                                automated testing and inspection through a web dashboard. Great for CI/CD pipelines.
+                            </p>
+                        </div>
+                        <div class="p-4 rounded-lg bg-indigo-500/10 border border-indigo-500/30">
+                            <h3 class="text-indigo-300 font-bold mb-2">🧪 Unit Testing</h3>
+                            <p>
+                                Mock JavaMailSender in tests to verify email generation logic without actually sending emails. 
+                                Verify template loading, token generation, and email building.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Technology Stack</h2>
+                    <div class="flex flex-wrap gap-3">
+                        {['Spring Mail', '@Async', 'JavaMailSender', 'MimeMessage', 'SecureRandom', 'Papercut', 'Mailtrap'].map((tech) => (
+                            <span class="rounded-full border border-indigo-500/30 bg-indigo-500/10 px-4 py-2 text-sm font-medium text-indigo-300">
+                                {tech}
+                            </span>
+                        ))}
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Results & Impact</h2>
+                    <ul class="space-y-2 text-gray-300">
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3">✓</span>
+                            <span><strong>Non-blocking Requests:</strong> Email sending doesn't delay HTTP responses</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3">✓</span>
+                            <span><strong>Professional Emails:</strong> HTML templates with formatting and multilingual support</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3">✓</span>
+                            <span><strong>Safe Testing:</strong> Papercut prevents spam, allows inspection of all emails</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3">✓</span>
+                            <span><strong>Flexible Configuration:</strong> Same code runs locally, in CI/CD, and in production</span>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+        </article>
+    </main>
+</Layout>

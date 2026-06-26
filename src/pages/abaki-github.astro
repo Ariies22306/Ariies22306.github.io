@@ -1,0 +1,254 @@
+---
+import Layout from '../layouts/Layout.astro';
+import ImageLightbox from '../components/ImageLightbox.astro';
+import githubWebhook from '../screenshots/Github_Webhook.PNG';
+import updatedRepoWebhook from '../screenshots/Updated_Repo&Webhook.PNG';
+---
+
+<Layout title="GitHub Repository Integration - Abaki">
+    <main class="mx-auto max-w-4xl px-6 py-12 md:py-20">
+        <a href="/abaki-overview" class="mb-8 inline-flex items-center text-sm font-medium text-indigo-400 hover:text-indigo-300">
+            <span class="mr-2">&larr;</span>
+            Back to Abaki Overview
+        </a>
+
+        <article>
+            <header class="mb-12">
+                <h1 class="mb-4 text-4xl font-extrabold tracking-tight sm:text-5xl text-white">
+                    GitHub Repository Integration
+                </h1>
+                <p class="text-lg text-gray-400">
+                    Integrating with GitHub's REST API using Octokit to manage repositories and webhooks
+                </p>
+            </header>
+
+            <section class="prose prose-invert max-w-none space-y-8">
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Overview</h2>
+                    <p class="text-gray-300 leading-relaxed">
+                        The GitHub integration layer enables Abaki to communicate with GitHub's API through the Octokit library. 
+                        This module handles repository listing, fetching repository details, setting up webhooks for real-time 
+                        events, and managing GitHub tokens securely. It's the bridge between Abaki and the repositories it monitors.
+                    </p>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Learning Journey</h2>
+                    <div class="space-y-3 text-gray-300">
+                        <div>
+                            <h3 class="text-indigo-300 font-bold mb-1">🔌 Challenge 1: API Client Integration</h3>
+                            <p>
+                                Choosing Octokit (the official GitHub .NET library) over raw HTTP calls. This taught me the 
+                                value of using well-maintained libraries that handle pagination, rate limiting, and error cases.
+                            </p>
+                        </div>
+                        <div>
+                            <h3 class="text-indigo-300 font-bold mb-1">🔐 Challenge 2: Token Management</h3>
+                            <p>
+                                GitHub tokens are sensitive credentials that need encryption at rest. Learned how to securely 
+                                store encrypted tokens in the database and decrypt them only when making API calls.
+                            </p>
+                        </div>
+                        <div>
+                            <h3 class="text-indigo-300 font-bold mb-1">🪝 Challenge 3: Webhook Configuration</h3>
+                            <p>
+                                Setting up webhooks on GitHub to trigger Abaki workflows. Discovered the complexity of managing 
+                                webhook delivery states and retry logic on the server side.
+                            </p>
+                        </div>
+                        <div>
+                            <h3 class="text-indigo-300 font-bold mb-1">✅ Key Learning</h3>
+                            <p>
+                                External API integration requires careful error handling, rate limit awareness, and proper credential 
+                                management. Always validate the response from external services.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">GitHub Integration Screenshots</h2>
+                    <p class="text-gray-300 leading-relaxed mb-6">
+                        These screenshots show the webhook setup experience and the repository state after the integration is enabled.
+                    </p>
+                    <ImageLightbox
+                        images={[
+                            {
+                                src: githubWebhook,
+                                alt: 'GitHub webhook configuration in Abaki',
+                                caption: 'Webhook configuration view for connecting Abaki to a GitHub repository.'
+                            },
+                            {
+                                src: updatedRepoWebhook,
+                                alt: 'Updated repository and webhook status in Abaki',
+                                caption: 'Repository overview after the webhook has been enabled and updated.'
+                            }
+                        ]}
+                    />
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Key Code Implementation</h2>
+                    
+                    <div class="mb-6">
+                        <h3 class="text-indigo-300 font-bold mb-3">Initializing Octokit Client</h3>
+                        <div class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden">
+                            <pre class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`// RepoService.cs - Initialization
+private readonly AbakiDb _db;
+private readonly ILogger<RepoService> _logger;
+private readonly EncryptionHelper _encryptionHelper;
+private readonly IHttpClientFactory _httpClientFactory;
+
+public RepoService(
+    AbakiDb db,
+    ILogger<RepoService> logger,
+    EncryptionHelper encryptionHelper,
+    IHttpClientFactory httpClientFactory)
+{
+    _db = db;
+    _logger = logger;
+    _encryptionHelper = encryptionHelper;
+    _httpClientFactory = httpClientFactory;
+}`}</code></pre>
+                        </div>
+                        <p class="text-gray-400 text-sm mt-2">
+                            Dependencies are injected via constructor. The EncryptionHelper handles secure token storage.
+                        </p>
+                    </div>
+
+                    <div class="mb-6">
+                        <h3 class="text-indigo-300 font-bold mb-3">Repository CRUD Operations</h3>
+                        <div class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden">
+                            <pre class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`// RepoService.cs
+public async Task AddAsync(Repo repo)
+{
+    if (repo == null)
+        throw new BadRequestException("Repo object cannot be null.");
+
+    ValidateFormat(repo);
+    await CheckForDuplicatesAsync(repo);
+
+    _logger.LogInformation("Adding new repository: {RepoName}", repo.Name);
+
+    // Initialize webhook as inactive - will be enabled separately
+    repo.WebhookActive = false;
+
+    _db.Repos.Add(repo);
+    await _db.SaveChangesAsync();
+    
+    _logger.LogInformation(
+        "Successfully added repo {Owner}/{Repo} with ID {Id}", 
+        repo.Owner, 
+        repo.RepositoryName, 
+        repo.Id
+    );
+}`}</code></pre>
+                        </div>
+                        <p class="text-gray-400 text-sm mt-2">
+                            Repositories are validated for format before saving. Validation ensures owner and repository names match GitHub requirements.
+                        </p>
+                    </div>
+
+                    <div>
+                        <h3 class="text-indigo-300 font-bold mb-3">Webhook Setup with GitHub API</h3>
+                        <div class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden">
+                            <pre class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`// RepoService.cs - Webhook Setup (Simplified)
+public async Task SetupWebhookAsync(int repoId, string webhookUrl)
+{
+    var repo = await _db.Repos.FindAsync(repoId);
+    if (repo == null)
+        throw new NotFoundExceptionC($"Repository {repoId} not found.");
+
+    // Get the GitHub token (encrypted in DB, decrypt here)
+    var key = await _db.AIAPIKeys.FindAsync(repo.KeyId);
+    if (key == null)
+        throw new BadRequestException("No GitHub token configured.");
+        
+    var decryptedToken = _encryptionHelper.Decrypt(key.Key);
+
+    // Initialize Octokit client with GitHub token
+    var client = new GitHubClient(new ProductHeaderValue("Abaki"))
+    {
+        Credentials = new Credentials(decryptedToken)
+    };
+
+    try
+    {
+        // Create webhook on GitHub
+        var hook = new NewRepositoryHook("web")
+        {
+            Url = webhookUrl,
+            ContentType = WebHookContentType.Json,
+            Secret = _configuration["WebHook:Secret"],
+            Active = true,
+            Events = new[] { "push", "pull_request", "issues" }
+        };
+
+        await client.Repository.Hooks.Create(repo.Owner, repo.RepositoryName, hook);
+
+        // Update database
+        repo.WebhookActive = true;
+        await _db.SaveChangesAsync();
+
+        _logger.LogInformation(
+            "Webhook enabled for {Owner}/{Repo}", 
+            repo.Owner, 
+            repo.RepositoryName
+        );
+    }
+    catch (HttpRequestException ex)
+    {
+        _logger.LogError(ex, "Failed to setup webhook for {Repo}", repo.Name);
+        throw new ExternalServiceException("Failed to setup GitHub webhook", ex);
+    }
+}`}</code></pre>
+                        </div>
+                        <p class="text-gray-400 text-sm mt-2">
+                            The webhook URL points back to Abaki's /api/webhook endpoint, allowing GitHub to notify us of repository events.
+                        </p>
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Technology Stack</h2>
+                    <div class="flex flex-wrap gap-3">
+                        {['C#', 'Octokit', 'GitHub REST API', 'Entity Framework Core', 'Async/Await', 'Webhooks'].map((tech) => (
+                            <span class="rounded-full border border-indigo-500/30 bg-indigo-500/10 px-4 py-2 text-sm font-medium text-indigo-300">
+                                {tech}
+                            </span>
+                        ))}
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Results & Impact</h2>
+                    <p class="text-gray-300 leading-relaxed">
+                        The GitHub integration provides:
+                    </p>
+                    <ul class="space-y-2 text-gray-300 mt-3">
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3">✓</span>
+                            <span><strong>Real-time Monitoring:</strong> Webhooks allow instant notification of repository changes</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3">✓</span>
+                            <span><strong>Secure Token Handling:</strong> GitHub tokens are encrypted at rest and only decrypted when needed</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3">✓</span>
+                            <span><strong>Multi-Repository Support:</strong> Can monitor any number of repositories across different owners</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3">✓</span>
+                            <span><strong>Event-Driven Architecture:</strong> Webhooks enable asynchronous processing of repository events</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3">✓</span>
+                            <span><strong>Official Library:</strong> Using Octokit ensures compatibility with GitHub's API and automatic updates</span>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+        </article>
+    </main>
+</Layout>
