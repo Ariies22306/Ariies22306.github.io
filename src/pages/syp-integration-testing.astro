@@ -1,5 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import ImageLightbox from '../components/ImageLightbox.astro';
+import junitTests from '../screenshots/JUnit_Tests.PNG';
 ---
 
 <Layout title="Integration Testing with JUnit & Spring Boot Test - SYP">
@@ -68,6 +70,22 @@ import Layout from '../layouts/Layout.astro';
                             </p>
                         </div>
                     </div>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">Testing Screenshots</h2>
+                    <p class="text-gray-300 leading-relaxed mb-6">
+                        The JUnit setup is visualized through the test suite overview used during development.
+                    </p>
+                    <ImageLightbox
+                        images={[
+                            {
+                                src: junitTests,
+                                alt: 'JUnit test suite for the Spring Boot project',
+                                caption: 'JUnit test coverage for the authentication and security modules.'
+                            }
+                        ]}
+                    />
                 </div>
 
                 <div>

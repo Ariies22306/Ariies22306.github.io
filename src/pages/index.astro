@@ -40,71 +40,9 @@ import Layout from '../layouts/Layout.astro';
         </section>
 
         <section class="mb-20">
-            <h2 class="mb-8 text-2xl font-bold text-white">Abaki Deep Dives</h2>
-            <p class="mb-6 text-gray-400">The Abaki project is complex and multi-faceted. Here are focused explorations of its core components:</p>
-            <div class="grid gap-4">
-                <a href="/abaki-auth" class="group block rounded-lg border border-gray-800 bg-gray-900 p-4 transition-all hover:border-indigo-500/50 hover:bg-gray-800/80">
-                    <h3 class="text-lg font-semibold text-indigo-400 group-hover:text-indigo-300">1. User Authentication & JWT Security</h3>
-                    <p class="mt-1 text-sm text-gray-400">Secure registration, BCrypt password hashing, and JWT token generation</p>
-                </a>
-                <a href="/abaki-github" class="group block rounded-lg border border-gray-800 bg-gray-900 p-4 transition-all hover:border-indigo-500/50 hover:bg-gray-800/80">
-                    <h3 class="text-lg font-semibold text-indigo-400 group-hover:text-indigo-300">2. GitHub Repository Integration</h3>
-                    <p class="mt-1 text-sm text-gray-400">Octokit integration, webhook management, and repository monitoring</p>
-                </a>
-                <a href="/abaki-autofix" class="group block rounded-lg border border-gray-800 bg-gray-900 p-4 transition-all hover:border-indigo-500/50 hover:bg-gray-800/80">
-                    <h3 class="text-lg font-semibold text-indigo-400 group-hover:text-indigo-300">3. AI-Powered Code Auto-Fix Engine</h3>
-                    <p class="mt-1 text-sm text-gray-400">Async streaming HTTP client, real-time token processing, and AI integration</p>
-                </a>
-                <a href="/abaki-database" class="group block rounded-lg border border-gray-800 bg-gray-900 p-4 transition-all hover:border-indigo-500/50 hover:bg-gray-800/80">
-                    <h3 class="text-lg font-semibold text-indigo-400 group-hover:text-indigo-300">4. Database & Entity Framework Architecture</h3>
-                    <p class="mt-1 text-sm text-gray-400">Relational schema design, migrations, and query optimization</p>
-                </a>
-                <a href="/abaki-encryption" class="group block rounded-lg border border-gray-800 bg-gray-900 p-4 transition-all hover:border-indigo-500/50 hover:bg-gray-800/80">
-                    <h3 class="text-lg font-semibold text-indigo-400 group-hover:text-indigo-300">5. API Key Management & Encryption</h3>
-                    <p class="mt-1 text-sm text-gray-400">AES-256 encryption, secure token storage, and key rotation</p>
-                </a>
-                <a href="/abaki-logging" class="group block rounded-lg border border-gray-800 bg-gray-900 p-4 transition-all hover:border-indigo-500/50 hover:bg-gray-800/80">
-                    <h3 class="text-lg font-semibold text-indigo-400 group-hover:text-indigo-300">6. Activity Logging & Real-time SignalR Hub</h3>
-                    <p class="mt-1 text-sm text-gray-400">Structured logging with Serilog, file rotation, and WebSocket communication</p>
-                </a>
-            </div>
-        </section>
-
-        <section class="mb-20">
-            <h2 class="mb-8 text-2xl font-bold text-white">SYP Sozialkaufhaus Deep Dives</h2>
-            <p class="mb-6 text-gray-400">A Spring Boot 3.4.5 backend for an online auction platform. Here are the core components I built:</p>
-            <div class="grid gap-4">
-                <a href="/syp-springboot-setup" class="group block rounded-lg border border-gray-800 bg-gray-900 p-4 transition-all hover:border-indigo-500/50 hover:bg-gray-800/80">
-                    <h3 class="text-lg font-semibold text-indigo-400 group-hover:text-indigo-300">1. Spring Boot Setup & Multi-Profile Configuration</h3>
-                    <p class="mt-1 text-sm text-gray-400">Maven, environment profiles, and secrets management</p>
-                </a>
-                <a href="/syp-service-layer" class="group block rounded-lg border border-gray-800 bg-gray-900 p-4 transition-all hover:border-indigo-500/50 hover:bg-gray-800/80">
-                    <h3 class="text-lg font-semibold text-indigo-400 group-hover:text-indigo-300">2. Service Layer Architecture</h3>
-                    <p class="mt-1 text-sm text-gray-400">Item and Sponsor services with pagination, validation, and business logic</p>
-                </a>
-                <a href="/syp-email-integration" class="group block rounded-lg border border-gray-800 bg-gray-900 p-4 transition-all hover:border-indigo-500/50 hover:bg-gray-800/80">
-                    <h3 class="text-lg font-semibold text-indigo-400 group-hover:text-indigo-300">3. Email Integration with Local Testing</h3>
-                    <p class="mt-1 text-sm text-gray-400">Spring Mail, async email, and Papercut/Mailtrap integration</p>
-                </a>
-                <a href="/syp-logging-strategy" class="group block rounded-lg border border-gray-800 bg-gray-900 p-4 transition-all hover:border-indigo-500/50 hover:bg-gray-800/80">
-                    <h3 class="text-lg font-semibold text-indigo-400 group-hover:text-indigo-300">4. Structured Logging with Log4j2</h3>
-                    <p class="mt-1 text-sm text-gray-400">File rotation, async appenders, and production-ready observability</p>
-                </a>
-                <a href="/syp-integration-testing" class="group block rounded-lg border border-gray-800 bg-gray-900 p-4 transition-all hover:border-indigo-500/50 hover:bg-gray-800/80">
-                    <h3 class="text-lg font-semibold text-indigo-400 group-hover:text-indigo-300">5. Integration Testing with JUnit & Spring Boot Test</h3>
-                    <p class="mt-1 text-sm text-gray-400">Unit tests with Mockito, integration tests, and test fixtures</p>
-                </a>
-                <a href="/syp-load-testing" class="group block rounded-lg border border-gray-800 bg-gray-900 p-4 transition-all hover:border-indigo-500/50 hover:bg-gray-800/80">
-                    <h3 class="text-lg font-semibold text-indigo-400 group-hover:text-indigo-300">6. Load Testing with Artillery</h3>
-                    <p class="mt-1 text-sm text-gray-400">Performance testing, realistic scenarios, and bottleneck identification</p>
-                </a>
-            </div>
-        </section>
-
-        <section class="mb-20">
             <h2 class="mb-8 text-2xl font-bold text-white">Skills & Tools</h2>
             <div class="flex flex-wrap gap-3">
-                {['Astro', 'Tailwind CSS', 'JavaScript', 'TypeScript', 'HTML', 'Git', 'C#', '.NET 8', 'Entity Framework Core', 'SQLite', 'REST APIs', 'SignalR', 'JWT', 'Encryption', 'Java 17', 'Spring Boot', 'JPA/Hibernate', 'MS SQL Server', 'Maven', 'Log4j2', 'JUnit 5', 'Mockito', 'Artillery'].map((skill) => (
+                {['JavaScript', 'TypeScript', 'HTML', 'CSS', 'Postman', 'Git', 'C#', '.NET 8', 'Entity Framework Core', 'SQLite', 'SignalR', 'Java', 'Spring Boot', 'JPA/Hibernate', 'MS SQL Server', 'Log4j2', 'JUnit', 'Mockito', 'Artillery'].map((skill) => (
                     <span class="rounded-full border border-gray-700 bg-gray-800 px-4 py-2 text-sm font-medium text-gray-300 transition-colors hover:border-indigo-500/50 hover:text-white">
                         {skill}
                     </span>
