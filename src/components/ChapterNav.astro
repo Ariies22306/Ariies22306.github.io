@@ -1,0 +1,28 @@
+---
+// src/components/ChapterNav.astro
+interface Props {
+    prevLink: string;
+    prevText: string;
+    nextLink: string;
+    nextText: string;
+}
+
+const { prevLink, prevText, nextLink, nextText } = Astro.props;
+---
+
+<nav class="mt-16 flex flex-col sm:flex-row items-center justify-between gap-6 border-t border-gray-800 pt-8">
+    <a href={prevLink} class="group flex w-full sm:w-auto flex-col gap-1 rounded-lg border border-transparent p-4 transition-colors hover:border-gray-800 hover:bg-gray-900/50 text-left">
+        <span class="text-xs font-medium uppercase tracking-wider text-gray-500">Previous</span>
+        <span class="flex items-center text-indigo-400 group-hover:text-indigo-300 font-medium">
+            <span class="mr-2 transition-transform group-hover:-translate-x-1">&larr;</span>
+            {prevText}
+        </span>
+    </a>
+    <a href={nextLink} class="group flex w-full sm:w-auto flex-col gap-1 rounded-lg border border-transparent p-4 transition-colors hover:border-gray-800 hover:bg-gray-900/50 sm:text-right text-left">
+        <span class="text-xs font-medium uppercase tracking-wider text-gray-500">Next</span>
+        <span class="flex items-center sm:justify-end text-indigo-400 group-hover:text-indigo-300 font-medium">
+            {nextText}
+            <span class="ml-2 transition-transform group-hover:translate-x-1">&rarr;</span>
+        </span>
+    </a>
+</nav>

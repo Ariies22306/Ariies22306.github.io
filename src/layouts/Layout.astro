@@ -19,6 +19,37 @@ const { title } = Astro.props;
         <title>{title}</title>
     </head>
     <body class="bg-gray-950 text-gray-300 antialiased selection:bg-indigo-500/30">
+        
+        <!-- Floating Glassmorphic Navigation -->
+        <div class="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 sm:bottom-auto sm:top-6">
+            <nav class="flex items-center gap-1 rounded-full border border-gray-800 bg-gray-900/80 p-1 shadow-lg shadow-black/50 backdrop-blur-md transition-all">
+                
+                <!-- Home Button -->
+                <a href="/" class="flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-gray-400 transition-all hover:bg-gray-800 hover:text-indigo-400" aria-label="Home">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                    </svg>
+                    Home
+                </a>
+                
+                <!-- Separator line -->
+                <div class="h-4 w-px bg-gray-800"></div>
+                
+                <!-- Contact Button -->
+                <a href="mailto:faris.lehner@gmail.com" class="flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-gray-400 transition-all hover:bg-gray-800 hover:text-indigo-400" aria-label="Contact">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect width="20" height="16" x="2" y="4" rx="2"></rect>
+                        <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+                    </svg>
+                    Contact
+                </a>
+
+            </nav>
+        </div>
+
+        <!-- Page Content -->
         <slot />
+        
     </body>
 </html>

@@ -1,21 +1,28 @@
 ---
-import Layout from '../layouts/Layout.astro';
+import Layout from "../layouts/Layout.astro";
+import ChapterNav from "../components/ChapterNav.astro";
 ---
 
 <Layout title="API Key Management & Encryption - Abaki">
     <main class="mx-auto max-w-4xl px-6 py-12 md:py-20">
-        <a href="/abaki-overview" class="mb-8 inline-flex items-center text-sm font-medium text-indigo-400 hover:text-indigo-300">
+        <a
+            href="/abaki-overview"
+            class="mb-8 inline-flex items-center text-sm font-medium text-indigo-400 hover:text-indigo-300"
+        >
             <span class="mr-2">&larr;</span>
             Back to Abaki Overview
         </a>
 
         <article>
             <header class="mb-12">
-                <h1 class="mb-4 text-4xl font-extrabold tracking-tight sm:text-5xl text-white">
+                <h1
+                    class="mb-4 text-4xl font-extrabold tracking-tight sm:text-5xl text-white"
+                >
                     API Key Management & Encryption
                 </h1>
                 <p class="text-lg text-gray-400">
-                    Secure storage of sensitive GitHub and AI provider tokens using AES encryption
+                    Secure storage of sensitive GitHub and AI provider tokens
+                    using AES encryption
                 </p>
             </header>
 
@@ -23,66 +30,102 @@ import Layout from '../layouts/Layout.astro';
                 <div>
                     <h2 class="text-2xl font-bold text-white mb-4">Overview</h2>
                     <p class="text-gray-300 leading-relaxed">
-                        Abaki integrates with external services (GitHub, Google Gemini AI) that require API keys for authentication. 
-                        Storing these keys in plain text would be a catastrophic security vulnerability. This module encrypts 
-                        sensitive tokens at rest in the database, decrypts them only when needed for API calls, and provides 
-                        secure key rotation support.
+                        Abaki integrates with external services (GitHub, Google
+                        Gemini AI) that require API keys for authentication.
+                        Storing these keys in plain text would be a catastrophic
+                        security vulnerability. This module encrypts sensitive
+                        tokens at rest in the database, decrypts them only when
+                        needed for API calls, and provides secure key rotation
+                        support.
                     </p>
                     <p class="text-gray-300 leading-relaxed mt-4">
-                        The implementation uses AES-256 encryption with a derived initialization vector, enabling both secure 
-                        storage and deterministic encryption (required for database queries on encrypted fields).
+                        The implementation uses AES-256 encryption with a
+                        derived initialization vector, enabling both secure
+                        storage and deterministic encryption (required for
+                        database queries on encrypted fields).
                     </p>
                 </div>
 
                 <div>
-                    <h2 class="text-2xl font-bold text-white mb-4">Learning Journey</h2>
+                    <h2 class="text-2xl font-bold text-white mb-4">
+                        Learning Journey
+                    </h2>
                     <div class="space-y-3 text-gray-300">
                         <div>
-                            <h3 class="text-indigo-300 font-bold mb-1">🔐 Challenge 1: Understanding Encryption</h3>
+                            <h3 class="text-indigo-300 font-bold mb-1">
+                                🔐 Challenge 1: Understanding Encryption
+                            </h3>
                             <p>
-                                Initially didn't understand the difference between symmetric and asymmetric encryption. Learned why 
-                                AES (symmetric) is appropriate for this use case where the server both encrypts and decrypts data.
+                                Initially didn't understand the difference
+                                between symmetric and asymmetric encryption.
+                                Learned why AES (symmetric) is appropriate for
+                                this use case where the server both encrypts and
+                                decrypts data.
                             </p>
                         </div>
                         <div>
-                            <h3 class="text-indigo-300 font-bold mb-1">🔑 Challenge 2: Key Management</h3>
+                            <h3 class="text-indigo-300 font-bold mb-1">
+                                🔑 Challenge 2: Key Management
+                            </h3>
                             <p>
-                                Where do we store the encryption key itself? Can't store it in the code (security risk) or the database 
-                                (circular problem). Solution: Configuration/environment variables with proper access controls.
+                                Where do we store the encryption key itself?
+                                Can't store it in the code (security risk) or
+                                the database (circular problem). Solution:
+                                Configuration/environment variables with proper
+                                access controls.
                             </p>
                         </div>
                         <div>
-                            <h3 class="text-indigo-300 font-bold mb-1">🔄 Challenge 3: Deterministic Encryption</h3>
+                            <h3 class="text-indigo-300 font-bold mb-1">
+                                🔄 Challenge 3: Deterministic Encryption
+                            </h3>
                             <p>
-                                Standard encryption uses random IVs, making it impossible to query encrypted fields. Needed deterministic 
-                                encryption (same plaintext → same ciphertext) to support lookups. This required deriving a fixed IV from 
-                                the encryption key.
+                                Standard encryption uses random IVs, making it
+                                impossible to query encrypted fields. Needed
+                                deterministic encryption (same plaintext → same
+                                ciphertext) to support lookups. This required
+                                deriving a fixed IV from the encryption key.
                             </p>
                         </div>
                         <div>
-                            <h3 class="text-indigo-300 font-bold mb-1">🛡️ Challenge 4: Backward Compatibility</h3>
+                            <h3 class="text-indigo-300 font-bold mb-1">
+                                🛡️ Challenge 4: Backward Compatibility
+                            </h3>
                             <p>
-                                Had to handle transitioning from unencrypted to encrypted keys without breaking the system. Implemented 
-                                fallback logic that treats non-Base64 strings as plaintext for old records.
+                                Had to handle transitioning from unencrypted to
+                                encrypted keys without breaking the system.
+                                Implemented fallback logic that treats
+                                non-Base64 strings as plaintext for old records.
                             </p>
                         </div>
                         <div>
-                            <h3 class="text-indigo-300 font-bold mb-1">✅ Key Learning</h3>
+                            <h3 class="text-indigo-300 font-bold mb-1">
+                                ✅ Key Learning
+                            </h3>
                             <p>
-                                Security requires thinking multiple layers deep. Never store credentials in code, always separate 
-                                encryption keys from encrypted data, and always provide migration paths for security updates.
+                                Security requires thinking multiple layers deep.
+                                Never store credentials in code, always separate
+                                encryption keys from encrypted data, and always
+                                provide migration paths for security updates.
                             </p>
                         </div>
                     </div>
                 </div>
 
                 <div>
-                    <h2 class="text-2xl font-bold text-white mb-4">Key Code Implementation</h2>
-                    
+                    <h2 class="text-2xl font-bold text-white mb-4">
+                        Key Code Implementation
+                    </h2>
+
                     <div class="mb-6">
-                        <h3 class="text-indigo-300 font-bold mb-3">AES Encryption Helper</h3>
-                        <div class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden">
-                            <pre class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`// Helpers/EncryptionHelper.cs
+                        <h3 class="text-indigo-300 font-bold mb-3">
+                            AES Encryption Helper
+                        </h3>
+                        <div
+                            class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden"
+                        >
+                            <pre
+                                class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`// Helpers/EncryptionHelper.cs
 using System.Security.Cryptography;
 using System.Text;
 
@@ -157,15 +200,22 @@ public class EncryptionHelper
 }`}</code></pre>
                         </div>
                         <p class="text-gray-400 text-sm mt-2">
-                            The fixed IV is derived from the key using SHA-256, ensuring the same plaintext always produces the 
-                            same ciphertext. This enables database queries like WHERE Key = encryptedValue.
+                            The fixed IV is derived from the key using SHA-256,
+                            ensuring the same plaintext always produces the same
+                            ciphertext. This enables database queries like WHERE
+                            Key = encryptedValue.
                         </p>
                     </div>
 
                     <div class="mb-6">
-                        <h3 class="text-indigo-300 font-bold mb-3">Key Service with Encryption</h3>
-                        <div class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden">
-                            <pre class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`// Services/KeyService.cs
+                        <h3 class="text-indigo-300 font-bold mb-3">
+                            Key Service with Encryption
+                        </h3>
+                        <div
+                            class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden"
+                        >
+                            <pre
+                                class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`// Services/KeyService.cs
 public class KeyService : IKeyService
 {
     private readonly AbakiDb _db;
@@ -219,15 +269,21 @@ public class KeyService : IKeyService
 }`}</code></pre>
                         </div>
                         <p class="text-gray-400 text-sm mt-2">
-                            Keys are encrypted on the way in and decrypted on the way out. The plaintext token is only in memory 
+                            Keys are encrypted on the way in and decrypted on
+                            the way out. The plaintext token is only in memory
                             when actively being used for API calls.
                         </p>
                     </div>
 
                     <div>
-                        <h3 class="text-indigo-300 font-bold mb-3">Using Encrypted Keys in API Calls</h3>
-                        <div class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden">
-                            <pre class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`// RepoService.cs - Using encrypted tokens
+                        <h3 class="text-indigo-300 font-bold mb-3">
+                            Using Encrypted Keys in API Calls
+                        </h3>
+                        <div
+                            class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden"
+                        >
+                            <pre
+                                class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`// RepoService.cs - Using encrypted tokens
 public async Task SetupWebhookAsync(int repoId, string webhookUrl)
 {
     var repo = await _db.Repos.FindAsync(repoId);
@@ -272,86 +328,148 @@ public async Task SetupWebhookAsync(int repoId, string webhookUrl)
 }`}</code></pre>
                         </div>
                         <p class="text-gray-400 text-sm mt-2">
-                            The decrypted token exists only in the local variable scope. Once the method exits, it's garbage 
+                            The decrypted token exists only in the local
+                            variable scope. Once the method exits, it's garbage
                             collected and no longer in memory.
                         </p>
                     </div>
                 </div>
 
                 <div>
-                    <h2 class="text-2xl font-bold text-white mb-4">Security Considerations</h2>
+                    <h2 class="text-2xl font-bold text-white mb-4">
+                        Security Considerations
+                    </h2>
                     <div class="space-y-3 text-gray-300">
-                        <div class="p-4 rounded-lg bg-indigo-500/10 border border-indigo-500/30">
-                            <h3 class="text-indigo-300 font-bold mb-2">🔑 Encryption Key Management</h3>
+                        <div
+                            class="p-4 rounded-lg bg-indigo-500/10 border border-indigo-500/30"
+                        >
+                            <h3 class="text-indigo-300 font-bold mb-2">
+                                🔑 Encryption Key Management
+                            </h3>
                             <p>
-                                The master encryption key is stored in configuration (appsettings.json for dev, 
-                                environment variables for production). It's NOT committed to version control.
+                                The master encryption key is stored in
+                                configuration (appsettings.json for dev,
+                                environment variables for production). It's NOT
+                                committed to version control.
                             </p>
                         </div>
-                        <div class="p-4 rounded-lg bg-indigo-500/10 border border-indigo-500/30">
-                            <h3 class="text-indigo-300 font-bold mb-2">🔄 Deterministic Encryption</h3>
+                        <div
+                            class="p-4 rounded-lg bg-indigo-500/10 border border-indigo-500/30"
+                        >
+                            <h3 class="text-indigo-300 font-bold mb-2">
+                                🔄 Deterministic Encryption
+                            </h3>
                             <p>
-                                Uses a fixed IV derived from the encryption key. Enables database queries on encrypted fields 
-                                (e.g., WHERE Key = encryptedValue) for uniqueness checks, while still maintaining encryption.
+                                Uses a fixed IV derived from the encryption key.
+                                Enables database queries on encrypted fields
+                                (e.g., WHERE Key = encryptedValue) for
+                                uniqueness checks, while still maintaining
+                                encryption.
                             </p>
                         </div>
-                        <div class="p-4 rounded-lg bg-indigo-500/10 border border-indigo-500/30">
-                            <h3 class="text-indigo-300 font-bold mb-2">🛡️ In-Memory Security</h3>
+                        <div
+                            class="p-4 rounded-lg bg-indigo-500/10 border border-indigo-500/30"
+                        >
+                            <h3 class="text-indigo-300 font-bold mb-2">
+                                🛡️ In-Memory Security
+                            </h3>
                             <p>
-                                Decrypted tokens exist only when actively needed. They're never logged, never returned to clients, 
-                                and are garbage collected as soon as the API call completes.
+                                Decrypted tokens exist only when actively
+                                needed. They're never logged, never returned to
+                                clients, and are garbage collected as soon as
+                                the API call completes.
                             </p>
                         </div>
-                        <div class="p-4 rounded-lg bg-indigo-500/10 border border-indigo-500/30">
-                            <h3 class="text-indigo-300 font-bold mb-2">↩️ Backward Compatibility</h3>
+                        <div
+                            class="p-4 rounded-lg bg-indigo-500/10 border border-indigo-500/30"
+                        >
+                            <h3 class="text-indigo-300 font-bold mb-2">
+                                ↩️ Backward Compatibility
+                            </h3>
                             <p>
-                                The decryption method checks if data is Base64-encoded. If not, it treats it as plaintext, allowing 
-                                gradual migration from unencrypted to encrypted keys without downtime.
+                                The decryption method checks if data is
+                                Base64-encoded. If not, it treats it as
+                                plaintext, allowing gradual migration from
+                                unencrypted to encrypted keys without downtime.
                             </p>
                         </div>
                     </div>
                 </div>
 
                 <div>
-                    <h2 class="text-2xl font-bold text-white mb-4">Technology Stack</h2>
+                    <h2 class="text-2xl font-bold text-white mb-4">
+                        Technology Stack
+                    </h2>
                     <div class="flex flex-wrap gap-3">
-                        {['C#', 'AES-256 Encryption', 'System.Security.Cryptography', 'SHA-256', 'Base64 Encoding', 'Configuration Management'].map((tech) => (
-                            <span class="rounded-full border border-indigo-500/30 bg-indigo-500/10 px-4 py-2 text-sm font-medium text-indigo-300">
-                                {tech}
-                            </span>
-                        ))}
+                        {
+                            [
+                                "C#",
+                                "AES-256 Encryption",
+                                "System.Security.Cryptography",
+                                "SHA-256",
+                                "Base64 Encoding",
+                                "Configuration Management",
+                            ].map((tech) => (
+                                <span class="rounded-full border border-indigo-500/30 bg-indigo-500/10 px-4 py-2 text-sm font-medium text-indigo-300">
+                                    {tech}
+                                </span>
+                            ))
+                        }
                     </div>
                 </div>
 
                 <div>
-                    <h2 class="text-2xl font-bold text-white mb-4">Results & Impact</h2>
+                    <h2 class="text-2xl font-bold text-white mb-4">
+                        Results & Impact
+                    </h2>
                     <p class="text-gray-300 leading-relaxed">
                         The encryption system provides:
                     </p>
                     <ul class="space-y-2 text-gray-300 mt-3">
                         <li class="flex items-start">
                             <span class="text-indigo-400 mr-3">✓</span>
-                            <span><strong>Data Protection at Rest:</strong> Compromised databases don't expose API tokens</span>
+                            <span
+                                ><strong>Data Protection at Rest:</strong> Compromised
+                                databases don't expose API tokens</span
+                            >
                         </li>
                         <li class="flex items-start">
                             <span class="text-indigo-400 mr-3">✓</span>
-                            <span><strong>Industry-Standard Encryption:</strong> AES-256 is trusted by government and enterprise</span>
+                            <span
+                                ><strong>Industry-Standard Encryption:</strong> AES-256
+                                is trusted by government and enterprise</span
+                            >
                         </li>
                         <li class="flex items-start">
                             <span class="text-indigo-400 mr-3">✓</span>
-                            <span><strong>Database Queryability:</strong> Deterministic encryption allows searches on encrypted fields</span>
+                            <span
+                                ><strong>Database Queryability:</strong> Deterministic
+                                encryption allows searches on encrypted fields</span
+                            >
                         </li>
                         <li class="flex items-start">
                             <span class="text-indigo-400 mr-3">✓</span>
-                            <span><strong>Key Rotation Support:</strong> Ability to re-encrypt all keys when the master key changes</span>
+                            <span
+                                ><strong>Key Rotation Support:</strong> Ability to
+                                re-encrypt all keys when the master key changes</span
+                            >
                         </li>
                         <li class="flex items-start">
                             <span class="text-indigo-400 mr-3">✓</span>
-                            <span><strong>Zero Token Logging:</strong> Sensitive data never appears in logs or error messages</span>
+                            <span
+                                ><strong>Zero Token Logging:</strong> Sensitive data
+                                never appears in logs or error messages</span
+                            >
                         </li>
                     </ul>
                 </div>
             </section>
+            <ChapterNav
+                prevLink="/abaki-database"
+                prevText="Database Architecture"
+                nextLink="/abaki-logging"
+                nextText="Activity Logging"
+            />
         </article>
     </main>
 </Layout>

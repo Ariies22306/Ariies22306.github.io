@@ -1,21 +1,28 @@
 ---
-import Layout from '../layouts/Layout.astro';
+import Layout from "../layouts/Layout.astro";
+import ChapterNav from "../components/ChapterNav.astro";
 ---
 
 <Layout title="Structured Logging with Log4j2 - SYP">
     <main class="mx-auto max-w-4xl px-6 py-12 md:py-20">
-        <a href="/syp-overview" class="mb-8 inline-flex items-center text-sm font-medium text-indigo-400 hover:text-indigo-300">
+        <a
+            href="/syp-overview"
+            class="mb-8 inline-flex items-center text-sm font-medium text-indigo-400 hover:text-indigo-300"
+        >
             <span class="mr-2">&larr;</span>
             Back to SYP Overview
         </a>
 
         <article>
             <header class="mb-12">
-                <h1 class="mb-4 text-4xl font-extrabold tracking-tight sm:text-5xl text-white">
+                <h1
+                    class="mb-4 text-4xl font-extrabold tracking-tight sm:text-5xl text-white"
+                >
                     Structured Logging with Log4j2
                 </h1>
                 <p class="text-lg text-gray-400">
-                    Implementing production-ready logging with file rotation, levels, and structured output for observability
+                    Implementing production-ready logging with file rotation,
+                    levels, and structured output for observability
                 </p>
             </header>
 
@@ -23,60 +30,92 @@ import Layout from '../layouts/Layout.astro';
                 <div>
                     <h2 class="text-2xl font-bold text-white mb-4">Overview</h2>
                     <p class="text-gray-300 leading-relaxed">
-                        Logging is how we understand what's happening in production. I implemented Log4j2 with structured logging, 
-                        file rotation to prevent disk bloat, different log levels for different purposes, and patterns that make 
-                        logs searchable and queryable. This is essential for debugging issues and monitoring system health.
+                        Logging is how we understand what's happening in
+                        production. I implemented Log4j2 with structured
+                        logging, file rotation to prevent disk bloat, different
+                        log levels for different purposes, and patterns that
+                        make logs searchable and queryable. This is essential
+                        for debugging issues and monitoring system health.
                     </p>
                 </div>
 
                 <div>
-                    <h2 class="text-2xl font-bold text-white mb-4">Learning Journey</h2>
+                    <h2 class="text-2xl font-bold text-white mb-4">
+                        Learning Journey
+                    </h2>
                     <div class="space-y-3 text-gray-300">
                         <div>
-                            <h3 class="text-indigo-300 font-bold mb-1">📝 Challenge: Choosing a Logging Framework</h3>
+                            <h3 class="text-indigo-300 font-bold mb-1">
+                                📝 Challenge: Choosing a Logging Framework
+                            </h3>
                             <p>
-                                Java has many logging frameworks (SLF4J, java.util.logging, Logback). Chose Log4j2 for better 
-                                performance, async logging, and fine-grained configuration control.
+                                Java has many logging frameworks (SLF4J,
+                                java.util.logging, Logback). Chose Log4j2 for
+                                better performance, async logging, and
+                                fine-grained configuration control.
                             </p>
                         </div>
                         <div>
-                            <h3 class="text-indigo-300 font-bold mb-1">💾 Challenge: Disk Space Management</h3>
+                            <h3 class="text-indigo-300 font-bold mb-1">
+                                💾 Challenge: Disk Space Management
+                            </h3>
                             <p>
-                                Applications log continuously. Log files grow indefinitely without rotation. Configured monthly 
-                                rotation so old logs are archived and new files start fresh each month.
+                                Applications log continuously. Log files grow
+                                indefinitely without rotation. Configured
+                                monthly rotation so old logs are archived and
+                                new files start fresh each month.
                             </p>
                         </div>
                         <div>
-                            <h3 class="text-indigo-300 font-bold mb-1">🔍 Challenge: Findable Logs</h3>
+                            <h3 class="text-indigo-300 font-bold mb-1">
+                                🔍 Challenge: Findable Logs
+                            </h3>
                             <p>
-                                Random log entries are useless. Implemented structured logging with patterns including timestamps, 
-                                thread names, class names, and log levels. Makes grep-ing through logs productive.
+                                Random log entries are useless. Implemented
+                                structured logging with patterns including
+                                timestamps, thread names, class names, and log
+                                levels. Makes grep-ing through logs productive.
                             </p>
                         </div>
                         <div>
-                            <h3 class="text-indigo-300 font-bold mb-1">⚡ Challenge: Performance</h3>
+                            <h3 class="text-indigo-300 font-bold mb-1">
+                                ⚡ Challenge: Performance
+                            </h3>
                             <p>
-                                Disk I/O is slow. Configured async logging (via queue) so logging doesn't block application threads. 
-                                Logs are buffered and written in batches.
+                                Disk I/O is slow. Configured async logging (via
+                                queue) so logging doesn't block application
+                                threads. Logs are buffered and written in
+                                batches.
                             </p>
                         </div>
                         <div>
-                            <h3 class="text-indigo-300 font-bold mb-1">✅ Key Learning</h3>
+                            <h3 class="text-indigo-300 font-bold mb-1">
+                                ✅ Key Learning
+                            </h3>
                             <p>
-                                Structured logging with proper configuration is foundational for operating systems in production. 
-                                It's often the only clue we have when things go wrong.
+                                Structured logging with proper configuration is
+                                foundational for operating systems in
+                                production. It's often the only clue we have
+                                when things go wrong.
                             </p>
                         </div>
                     </div>
                 </div>
 
                 <div>
-                    <h2 class="text-2xl font-bold text-white mb-4">Key Implementation</h2>
-                    
+                    <h2 class="text-2xl font-bold text-white mb-4">
+                        Key Implementation
+                    </h2>
+
                     <div class="mb-6">
-                        <h3 class="text-indigo-300 font-bold mb-3">Log4j2 Configuration (log4j2.xml)</h3>
-                        <div class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden">
-                            <pre class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`<?xml version="1.0" encoding="UTF-8"?>
+                        <h3 class="text-indigo-300 font-bold mb-3">
+                            Log4j2 Configuration (log4j2.xml)
+                        </h3>
+                        <div
+                            class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden"
+                        >
+                            <pre
+                                class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`<?xml version="1.0" encoding="UTF-8"?>
 <Configuration>
     <Properties>
         <!-- Log Pattern: Date | Thread | Class | Level | Message -->
@@ -128,15 +167,21 @@ import Layout from '../layouts/Layout.astro';
 </Configuration>`}</code></pre>
                         </div>
                         <p class="text-gray-400 text-sm mt-2">
-                            Monthly rotation with timezone-aware triggers. Async appender prevents logging from blocking application threads. 
-                            Keeps 12 months of history.
+                            Monthly rotation with timezone-aware triggers. Async
+                            appender prevents logging from blocking application
+                            threads. Keeps 12 months of history.
                         </p>
                     </div>
 
                     <div class="mb-6">
-                        <h3 class="text-indigo-300 font-bold mb-3">Using Log4j2 in Services</h3>
-                        <div class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden">
-                            <pre class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`// UserService.java - Example Logging Usage
+                        <h3 class="text-indigo-300 font-bold mb-3">
+                            Using Log4j2 in Services
+                        </h3>
+                        <div
+                            class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden"
+                        >
+                            <pre
+                                class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`// UserService.java - Example Logging Usage
 @Service
 public class UserServiceImpl implements UserService {
     private static final Logger logger = LogManager.getLogger(UserServiceImpl.class);
@@ -186,14 +231,21 @@ public class UserServiceImpl implements UserService {
 }`}</code></pre>
                         </div>
                         <p class="text-gray-400 text-sm mt-2">
-                            Different log levels: INFO for important business events, WARN for potential issues, DEBUG for debugging, ERROR for failures.
+                            Different log levels: INFO for important business
+                            events, WARN for potential issues, DEBUG for
+                            debugging, ERROR for failures.
                         </p>
                     </div>
 
                     <div>
-                        <h3 class="text-indigo-300 font-bold mb-3">Log Files in Production</h3>
-                        <div class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden">
-                            <pre class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`# Directory structure with monthly rotation
+                        <h3 class="text-indigo-300 font-bold mb-3">
+                            Log Files in Production
+                        </h3>
+                        <div
+                            class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden"
+                        >
+                            <pre
+                                class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`# Directory structure with monthly rotation
 logs/
 ├── syp.log                 # Current month's logs (active file)
 ├── 2025-05.log             # May 2025 (archived)
@@ -215,44 +267,77 @@ $ grep "item ID: 42" logs/*.log            # Find logs for specific item
 $ grep -E "WARN|ERROR" logs/2025-11.log   # Warnings and errors this month`}</code></pre>
                         </div>
                         <p class="text-gray-400 text-sm mt-2">
-                            Structured format makes logs searchable with grep. Monthly files prevent any single file from getting too large.
+                            Structured format makes logs searchable with grep.
+                            Monthly files prevent any single file from getting
+                            too large.
                         </p>
                     </div>
                 </div>
 
                 <div>
-                    <h2 class="text-2xl font-bold text-white mb-4">Technology Stack</h2>
+                    <h2 class="text-2xl font-bold text-white mb-4">
+                        Technology Stack
+                    </h2>
                     <div class="flex flex-wrap gap-3">
-                        {['Log4j2', 'RollingFile Appender', 'Async Appender', 'PatternLayout', 'TimeBasedTriggeringPolicy', 'Structured Logging'].map((tech) => (
-                            <span class="rounded-full border border-indigo-500/30 bg-indigo-500/10 px-4 py-2 text-sm font-medium text-indigo-300">
-                                {tech}
-                            </span>
-                        ))}
+                        {
+                            [
+                                "Log4j2",
+                                "RollingFile Appender",
+                                "Async Appender",
+                                "PatternLayout",
+                                "TimeBasedTriggeringPolicy",
+                                "Structured Logging",
+                            ].map((tech) => (
+                                <span class="rounded-full border border-indigo-500/30 bg-indigo-500/10 px-4 py-2 text-sm font-medium text-indigo-300">
+                                    {tech}
+                                </span>
+                            ))
+                        }
                     </div>
                 </div>
 
                 <div>
-                    <h2 class="text-2xl font-bold text-white mb-4">Results & Impact</h2>
+                    <h2 class="text-2xl font-bold text-white mb-4">
+                        Results & Impact
+                    </h2>
                     <ul class="space-y-2 text-gray-300">
                         <li class="flex items-start">
                             <span class="text-indigo-400 mr-3">✓</span>
-                            <span><strong>Searchable History:</strong> Months of logs with clear structure, easy to grep/filter</span>
+                            <span
+                                ><strong>Searchable History:</strong> Months of logs
+                                with clear structure, easy to grep/filter</span
+                            >
                         </li>
                         <li class="flex items-start">
                             <span class="text-indigo-400 mr-3">✓</span>
-                            <span><strong>No Disk Bloat:</strong> Monthly rotation keeps disk usage predictable</span>
+                            <span
+                                ><strong>No Disk Bloat:</strong> Monthly rotation
+                                keeps disk usage predictable</span
+                            >
                         </li>
                         <li class="flex items-start">
                             <span class="text-indigo-400 mr-3">✓</span>
-                            <span><strong>Non-blocking I/O:</strong> Async appender prevents logging from slowing down requests</span>
+                            <span
+                                ><strong>Non-blocking I/O:</strong> Async appender
+                                prevents logging from slowing down requests</span
+                            >
                         </li>
                         <li class="flex items-start">
                             <span class="text-indigo-400 mr-3">✓</span>
-                            <span><strong>Production-Ready:</strong> Works across environments with same configuration</span>
+                            <span
+                                ><strong>Production-Ready:</strong> Works across environments
+                                with same configuration</span
+                            >
                         </li>
                     </ul>
                 </div>
             </section>
+            <ChapterNav
+                prevLink="/syp-email-integration"
+                prevText="Email Integration"
+                nextLink="/syp-integration-testing"
+                nextText="Integration Testing"
+            />
         </article>
     </main>
 </Layout>

@@ -1,23 +1,31 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import ImageLightbox from '../components/ImageLightbox.astro';
-import junitTests from '../screenshots/JUnit_Tests.PNG';
+import Layout from "../layouts/Layout.astro";
+import ImageLightbox from "../components/ImageLightbox.astro";
+import ChapterNav from "../components/ChapterNav.astro";
+import junitTests from "../screenshots/JUnit_Tests.PNG";
 ---
 
 <Layout title="Integration Testing with JUnit & Spring Boot Test - SYP">
     <main class="mx-auto max-w-4xl px-6 py-12 md:py-20">
-        <a href="/syp-overview" class="mb-8 inline-flex items-center text-sm font-medium text-indigo-400 hover:text-indigo-300">
+        <a
+            href="/syp-overview"
+            class="mb-8 inline-flex items-center text-sm font-medium text-indigo-400 hover:text-indigo-300"
+        >
             <span class="mr-2">&larr;</span>
             Back to SYP Overview
         </a>
 
         <article>
             <header class="mb-12">
-                <h1 class="mb-4 text-4xl font-extrabold tracking-tight sm:text-5xl text-white">
+                <h1
+                    class="mb-4 text-4xl font-extrabold tracking-tight sm:text-5xl text-white"
+                >
                     Integration Testing with JUnit & Spring Boot Test
                 </h1>
                 <p class="text-lg text-gray-400">
-                    Comprehensive testing strategy: unit tests with mocking, integration tests with Spring context, and fixtures for test data
+                    Comprehensive testing strategy: unit tests with mocking,
+                    integration tests with Spring context, and fixtures for test
+                    data
                 </p>
             </header>
 
@@ -25,76 +33,112 @@ import junitTests from '../screenshots/JUnit_Tests.PNG';
                 <div>
                     <h2 class="text-2xl font-bold text-white mb-4">Overview</h2>
                     <p class="text-gray-300 leading-relaxed">
-                        Testing is how we ensure code works before it reaches production. I implemented a comprehensive testing strategy: 
-                        unit tests with Mockito for individual methods, integration tests using Spring Boot Test context, and test fixtures 
-                        for consistent test data. This gives confidence that features work and prevents regressions.
+                        Testing is how we ensure code works before it reaches
+                        production. I implemented a comprehensive testing
+                        strategy: unit tests with Mockito for individual
+                        methods, integration tests using Spring Boot Test
+                        context, and test fixtures for consistent test data.
+                        This gives confidence that features work and prevents
+                        regressions.
                     </p>
                 </div>
 
                 <div>
-                    <h2 class="text-2xl font-bold text-white mb-4">Learning Journey</h2>
+                    <h2 class="text-2xl font-bold text-white mb-4">
+                        Learning Journey
+                    </h2>
                     <div class="space-y-3 text-gray-300">
                         <div>
-                            <h3 class="text-indigo-300 font-bold mb-1">🧪 Challenge: Test Types</h3>
+                            <h3 class="text-indigo-300 font-bold mb-1">
+                                🧪 Challenge: Test Types
+                            </h3>
                             <p>
-                                Not all tests are equal. Unit tests verify individual methods. Integration tests verify the whole stack 
-                                (database, services, controllers). Learned when to use each for optimal coverage and speed.
+                                Not all tests are equal. Unit tests verify
+                                individual methods. Integration tests verify the
+                                whole stack (database, services, controllers).
+                                Learned when to use each for optimal coverage
+                                and speed.
                             </p>
                         </div>
                         <div>
-                            <h3 class="text-indigo-300 font-bold mb-1">🎭 Challenge: Mocking Dependencies</h3>
+                            <h3 class="text-indigo-300 font-bold mb-1">
+                                🎭 Challenge: Mocking Dependencies
+                            </h3>
                             <p>
-                                Services depend on DAOs, email, etc. Can't test these with real implementations (too slow, external 
-                                dependencies). Learned Mockito to create mock objects for controlled testing.
+                                Services depend on DAOs, email, etc. Can't test
+                                these with real implementations (too slow,
+                                external dependencies). Learned Mockito to
+                                create mock objects for controlled testing.
                             </p>
                         </div>
                         <div>
-                            <h3 class="text-indigo-300 font-bold mb-1">📊 Challenge: Consistent Test Data</h3>
+                            <h3 class="text-indigo-300 font-bold mb-1">
+                                📊 Challenge: Consistent Test Data
+                            </h3>
                             <p>
-                                Tests need predictable data. Created fixtures (builder objects) to consistently create test users, items, 
-                                and bids. Prevents random failures from inconsistent test data.
+                                Tests need predictable data. Created fixtures
+                                (builder objects) to consistently create test
+                                users, items, and bids. Prevents random failures
+                                from inconsistent test data.
                             </p>
                         </div>
                         <div>
-                            <h3 class="text-indigo-300 font-bold mb-1">⚡ Challenge: Test Speed</h3>
+                            <h3 class="text-indigo-300 font-bold mb-1">
+                                ⚡ Challenge: Test Speed
+                            </h3>
                             <p>
-                                Integration tests with database are slower. Use unit tests for fast feedback, integration tests for critical 
-                                paths. Balanced testing pyramid.
+                                Integration tests with database are slower. Use
+                                unit tests for fast feedback, integration tests
+                                for critical paths. Balanced testing pyramid.
                             </p>
                         </div>
                         <div>
-                            <h3 class="text-indigo-300 font-bold mb-1">✅ Key Learning</h3>
+                            <h3 class="text-indigo-300 font-bold mb-1">
+                                ✅ Key Learning
+                            </h3>
                             <p>
-                                Good tests catch bugs early, enable refactoring with confidence, and document expected behavior. Testing 
-                                is an investment in code quality.
+                                Good tests catch bugs early, enable refactoring
+                                with confidence, and document expected behavior.
+                                Testing is an investment in code quality.
                             </p>
                         </div>
                     </div>
                 </div>
 
                 <div>
-                    <h2 class="text-2xl font-bold text-white mb-4">Testing Screenshots</h2>
+                    <h2 class="text-2xl font-bold text-white mb-4">
+                        Testing Screenshots
+                    </h2>
                     <p class="text-gray-300 leading-relaxed mb-6">
-                        The JUnit setup is visualized through the test suite overview used during development.
+                        The JUnit setup is visualized through the test suite
+                        overview used during development.
                     </p>
                     <ImageLightbox
                         images={[
                             {
                                 src: junitTests,
-                                alt: 'JUnit test suite for the Spring Boot project',
-                                caption: 'JUnit test coverage for the authentication and security modules.'
-                            }
+                                alt: "JUnit test suite for the Spring Boot project",
+                                caption:
+                                    "JUnit test coverage for the authentication and security modules.",
+                            },
                         ]}
                     />
                 </div>
 
                 <div>
-                    <h2 class="text-2xl font-bold text-white mb-4">Key Implementation</h2>
-                    
+                    <h2 class="text-2xl font-bold text-white mb-4">
+                        Key Implementation
+                    </h2>
+
                     <div class="mb-6">
-                        <h3 class="text-indigo-300 font-bold mb-3">Unit Test with Mockito</h3>
-                        <div class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden">
-                            <pre class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`// SponsorServiceImplTest.java - Unit Test
+                        <h3 class="text-indigo-300 font-bold mb-3">
+                            Unit Test with Mockito
+                        </h3>
+                        <div
+                            class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden"
+                        >
+                            <pre
+                                class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`// SponsorServiceImplTest.java - Unit Test
 @ExtendWith(MockitoExtension.class)  // JUnit 5 with Mockito
 public class SponsorServiceImplTest {
     
@@ -159,14 +203,21 @@ public class SponsorServiceImplTest {
 }`}</code></pre>
                         </div>
                         <p class="text-gray-400 text-sm mt-2">
-                            Unit tests use @Mock to create fake DAOs. @InjectMocks injects mocks into service. Fast and isolated.
+                            Unit tests use @Mock to create fake DAOs.
+                            @InjectMocks injects mocks into service. Fast and
+                            isolated.
                         </p>
                     </div>
 
                     <div class="mb-6">
-                        <h3 class="text-indigo-300 font-bold mb-3">Integration Test with Spring Boot Test</h3>
-                        <div class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden">
-                            <pre class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`// ItemServiceIntegrationTest.java
+                        <h3 class="text-indigo-300 font-bold mb-3">
+                            Integration Test with Spring Boot Test
+                        </h3>
+                        <div
+                            class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden"
+                        >
+                            <pre
+                                class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`// ItemServiceIntegrationTest.java
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Transactional  // Rollback after each test
 public class ItemServiceIntegrationTest {
@@ -252,15 +303,21 @@ public class ItemServiceIntegrationTest {
 }`}</code></pre>
                         </div>
                         <p class="text-gray-400 text-sm mt-2">
-                            Integration tests load full Spring context. @Transactional rolls back each test for isolation. 
+                            Integration tests load full Spring context.
+                            @Transactional rolls back each test for isolation.
                             Tests the entire stack with real database.
                         </p>
                     </div>
 
                     <div>
-                        <h3 class="text-indigo-300 font-bold mb-3">Test Fixtures for Consistent Data</h3>
-                        <div class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden">
-                            <pre class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`// TestFixture.java - Reusable Test Data Builder
+                        <h3 class="text-indigo-300 font-bold mb-3">
+                            Test Fixtures for Consistent Data
+                        </h3>
+                        <div
+                            class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden"
+                        >
+                            <pre
+                                class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`// TestFixture.java - Reusable Test Data Builder
 public class TestFixture {
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
@@ -307,17 +364,24 @@ public class TestFixture {
 }`}</code></pre>
                         </div>
                         <p class="text-gray-400 text-sm mt-2">
-                            Fixtures create test data with sensible defaults. Consumer functions allow customization. 
-                            Reduces test boilerplate and improves readability.
+                            Fixtures create test data with sensible defaults.
+                            Consumer functions allow customization. Reduces test
+                            boilerplate and improves readability.
                         </p>
                     </div>
                 </div>
 
                 <div>
-                    <h2 class="text-2xl font-bold text-white mb-4">Testing Strategy</h2>
+                    <h2 class="text-2xl font-bold text-white mb-4">
+                        Testing Strategy
+                    </h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="p-4 rounded-lg bg-indigo-500/10 border border-indigo-500/30">
-                            <h3 class="text-indigo-300 font-bold mb-2">🚀 Unit Tests (Fast)</h3>
+                        <div
+                            class="p-4 rounded-lg bg-indigo-500/10 border border-indigo-500/30"
+                        >
+                            <h3 class="text-indigo-300 font-bold mb-2">
+                                🚀 Unit Tests (Fast)
+                            </h3>
                             <ul class="text-gray-300 text-sm space-y-1">
                                 <li>• Test individual methods</li>
                                 <li>• Mock all dependencies</li>
@@ -325,8 +389,12 @@ public class TestFixture {
                                 <li>• Most tests should be here</li>
                             </ul>
                         </div>
-                        <div class="p-4 rounded-lg bg-indigo-500/10 border border-indigo-500/30">
-                            <h3 class="text-indigo-300 font-bold mb-2">🔗 Integration Tests (Slower)</h3>
+                        <div
+                            class="p-4 rounded-lg bg-indigo-500/10 border border-indigo-500/30"
+                        >
+                            <h3 class="text-indigo-300 font-bold mb-2">
+                                🔗 Integration Tests (Slower)
+                            </h3>
                             <ul class="text-gray-300 text-sm space-y-1">
                                 <li>• Test service + database</li>
                                 <li>• Full Spring context</li>
@@ -334,8 +402,12 @@ public class TestFixture {
                                 <li>• Critical paths only</li>
                             </ul>
                         </div>
-                        <div class="p-4 rounded-lg bg-indigo-500/10 border border-indigo-500/30">
-                            <h3 class="text-indigo-300 font-bold mb-2">🌐 E2E Tests (Slowest)</h3>
+                        <div
+                            class="p-4 rounded-lg bg-indigo-500/10 border border-indigo-500/30"
+                        >
+                            <h3 class="text-indigo-300 font-bold mb-2">
+                                🌐 E2E Tests (Slowest)
+                            </h3>
                             <ul class="text-gray-300 text-sm space-y-1">
                                 <li>• Test full API endpoints</li>
                                 <li>• TestRestTemplate</li>
@@ -343,8 +415,12 @@ public class TestFixture {
                                 <li>• Smoke tests only</li>
                             </ul>
                         </div>
-                        <div class="p-4 rounded-lg bg-indigo-500/10 border border-indigo-500/30">
-                            <h3 class="text-indigo-300 font-bold mb-2">📊 Testing Pyramid</h3>
+                        <div
+                            class="p-4 rounded-lg bg-indigo-500/10 border border-indigo-500/30"
+                        >
+                            <h3 class="text-indigo-300 font-bold mb-2">
+                                📊 Testing Pyramid
+                            </h3>
                             <ul class="text-gray-300 text-sm space-y-1">
                                 <li>• Many unit tests (base)</li>
                                 <li>• Some integration tests</li>
@@ -355,38 +431,70 @@ public class TestFixture {
                 </div>
 
                 <div>
-                    <h2 class="text-2xl font-bold text-white mb-4">Technology Stack</h2>
+                    <h2 class="text-2xl font-bold text-white mb-4">
+                        Technology Stack
+                    </h2>
                     <div class="flex flex-wrap gap-3">
-                        {['JUnit 5', 'Mockito', 'Spring Boot Test', '@SpringBootTest', 'TestFixture', '@Transactional', 'Page<T>'].map((tech) => (
-                            <span class="rounded-full border border-indigo-500/30 bg-indigo-500/10 px-4 py-2 text-sm font-medium text-indigo-300">
-                                {tech}
-                            </span>
-                        ))}
+                        {
+                            [
+                                "JUnit 5",
+                                "Mockito",
+                                "Spring Boot Test",
+                                "@SpringBootTest",
+                                "TestFixture",
+                                "@Transactional",
+                                "Page<T>",
+                            ].map((tech) => (
+                                <span class="rounded-full border border-indigo-500/30 bg-indigo-500/10 px-4 py-2 text-sm font-medium text-indigo-300">
+                                    {tech}
+                                </span>
+                            ))
+                        }
                     </div>
                 </div>
 
                 <div>
-                    <h2 class="text-2xl font-bold text-white mb-4">Results & Impact</h2>
+                    <h2 class="text-2xl font-bold text-white mb-4">
+                        Results & Impact
+                    </h2>
                     <ul class="space-y-2 text-gray-300">
                         <li class="flex items-start">
                             <span class="text-indigo-400 mr-3">✓</span>
-                            <span><strong>Fast Feedback:</strong> Unit tests run in seconds, catch bugs immediately</span>
+                            <span
+                                ><strong>Fast Feedback:</strong> Unit tests run in
+                                seconds, catch bugs immediately</span
+                            >
                         </li>
                         <li class="flex items-start">
                             <span class="text-indigo-400 mr-3">✓</span>
-                            <span><strong>Confidence in Refactoring:</strong> Tests ensure changes don't break existing behavior</span>
+                            <span
+                                ><strong>Confidence in Refactoring:</strong> Tests
+                                ensure changes don't break existing behavior</span
+                            >
                         </li>
                         <li class="flex items-start">
                             <span class="text-indigo-400 mr-3">✓</span>
-                            <span><strong>Living Documentation:</strong> Tests show how code is supposed to be used</span>
+                            <span
+                                ><strong>Living Documentation:</strong> Tests show
+                                how code is supposed to be used</span
+                            >
                         </li>
                         <li class="flex items-start">
                             <span class="text-indigo-400 mr-3">✓</span>
-                            <span><strong>Reduced Manual Testing:</strong> Automated tests catch regressions early</span>
+                            <span
+                                ><strong>Reduced Manual Testing:</strong> Automated
+                                tests catch regressions early</span
+                            >
                         </li>
                     </ul>
                 </div>
             </section>
+            <ChapterNav
+                prevLink="/syp-logging-strategy"
+                prevText="Structured Logging"
+                nextLink="/syp-load-testing"
+                nextText="Load Testing"
+            />
         </article>
     </main>
 </Layout>

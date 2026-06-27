@@ -1,21 +1,28 @@
 ---
-import Layout from '../layouts/Layout.astro';
+import Layout from "../layouts/Layout.astro";
+import ChapterNav from "../components/ChapterNav.astro";
 ---
 
 <Layout title="Load Testing with Artillery - SYP">
     <main class="mx-auto max-w-4xl px-6 py-12 md:py-20">
-        <a href="/syp-overview" class="mb-8 inline-flex items-center text-sm font-medium text-indigo-400 hover:text-indigo-300">
+        <a
+            href="/syp-overview"
+            class="mb-8 inline-flex items-center text-sm font-medium text-indigo-400 hover:text-indigo-300"
+        >
             <span class="mr-2">&larr;</span>
             Back to SYP Overview
         </a>
 
         <article>
             <header class="mb-12">
-                <h1 class="mb-4 text-4xl font-extrabold tracking-tight sm:text-5xl text-white">
+                <h1
+                    class="mb-4 text-4xl font-extrabold tracking-tight sm:text-5xl text-white"
+                >
                     Load Testing with Artillery
                 </h1>
                 <p class="text-lg text-gray-400">
-                    Performance testing: identifying bottlenecks, validating capacity, and optimizing under realistic load
+                    Performance testing: identifying bottlenecks, validating
+                    capacity, and optimizing under realistic load
                 </p>
             </header>
 
@@ -23,47 +30,72 @@ import Layout from '../layouts/Layout.astro';
                 <div>
                     <h2 class="text-2xl font-bold text-white mb-4">Overview</h2>
                     <p class="text-gray-300 leading-relaxed">
-                        Unit tests verify correctness, but integration tests verify behavior. Artillery goes a step further: it verifies 
-                        performance under load. I created realistic load test scenarios to simulate hundreds of concurrent users to find 
-                        bottlenecks, validate capacity, and ensure the system degrades gracefully under stress.
+                        Unit tests verify correctness, but integration tests
+                        verify behavior. Artillery goes a step further: it
+                        verifies performance under load. I created realistic
+                        load test scenarios to simulate hundreds of concurrent
+                        users to find bottlenecks, validate capacity, and ensure
+                        the system degrades gracefully under stress.
                     </p>
                 </div>
 
                 <div>
-                    <h2 class="text-2xl font-bold text-white mb-4">Learning Journey</h2>
+                    <h2 class="text-2xl font-bold text-white mb-4">
+                        Learning Journey
+                    </h2>
                     <div class="space-y-3 text-gray-300">
                         <div>
-                            <h3 class="text-indigo-300 font-bold mb-1">⚡ Challenge: Realistic Scenarios</h3>
+                            <h3 class="text-indigo-300 font-bold mb-1">
+                                ⚡ Challenge: Realistic Scenarios
+                            </h3>
                             <p>
-                                Not all users behave the same. Some create users, others bid on items, others search. Created multiple 
-                                scenarios with different user flows to simulate realistic traffic patterns.
+                                Not all users behave the same. Some create
+                                users, others bid on items, others search.
+                                Created multiple scenarios with different user
+                                flows to simulate realistic traffic patterns.
                             </p>
                         </div>
                         <div>
-                            <h3 class="text-indigo-300 font-bold mb-1">📈 Challenge: Load Phases</h3>
+                            <h3 class="text-indigo-300 font-bold mb-1">
+                                📈 Challenge: Load Phases
+                            </h3>
                             <p>
-                                Load testing isn't just "100 req/s". Implemented warm-up phase (gradual ramp), peak phase (constant max 
-                                load), and cool-down phase (gradual reduction) to simulate real-world traffic patterns.
+                                Load testing isn't just "100 req/s". Implemented
+                                warm-up phase (gradual ramp), peak phase
+                                (constant max load), and cool-down phase
+                                (gradual reduction) to simulate real-world
+                                traffic patterns.
                             </p>
                         </div>
                         <div>
-                            <h3 class="text-indigo-300 font-bold mb-1">🔍 Challenge: Identifying Bottlenecks</h3>
+                            <h3 class="text-indigo-300 font-bold mb-1">
+                                🔍 Challenge: Identifying Bottlenecks
+                            </h3>
                             <p>
-                                Some endpoints are slow under load, others fast. Used Artillery to measure response times, identify 
-                                slow queries, and find resource contention.
+                                Some endpoints are slow under load, others fast.
+                                Used Artillery to measure response times,
+                                identify slow queries, and find resource
+                                contention.
                             </p>
                         </div>
                         <div>
-                            <h3 class="text-indigo-300 font-bold mb-1">🛠️ Challenge: Optimization</h3>
+                            <h3 class="text-indigo-300 font-bold mb-1">
+                                🛠️ Challenge: Optimization
+                            </h3>
                             <p>
-                                After identifying slow endpoints, implemented fixes: added database indexes, implemented caching, 
-                                used pagination more efficiently, and optimized N+1 queries.
+                                After identifying slow endpoints, implemented
+                                fixes: added database indexes, implemented
+                                caching, used pagination more efficiently, and
+                                optimized N+1 queries.
                             </p>
                         </div>
                         <div>
-                            <h3 class="text-indigo-300 font-bold mb-1">✅ Key Learning</h3>
+                            <h3 class="text-indigo-300 font-bold mb-1">
+                                ✅ Key Learning
+                            </h3>
                             <p>
-                                Load testing is how we find problems at scale. Artillery makes it easy to simulate thousands of 
+                                Load testing is how we find problems at scale.
+                                Artillery makes it easy to simulate thousands of
                                 concurrent users without complex infrastructure.
                             </p>
                         </div>
@@ -71,12 +103,19 @@ import Layout from '../layouts/Layout.astro';
                 </div>
 
                 <div>
-                    <h2 class="text-2xl font-bold text-white mb-4">Key Implementation</h2>
-                    
+                    <h2 class="text-2xl font-bold text-white mb-4">
+                        Key Implementation
+                    </h2>
+
                     <div class="mb-6">
-                        <h3 class="text-indigo-300 font-bold mb-3">User Creation & Registration Load Test</h3>
-                        <div class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden">
-                            <pre class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`# UserLoadTest.yaml - Artillery Scenario
+                        <h3 class="text-indigo-300 font-bold mb-3">
+                            User Creation & Registration Load Test
+                        </h3>
+                        <div
+                            class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden"
+                        >
+                            <pre
+                                class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`# UserLoadTest.yaml - Artillery Scenario
 config:
   target: "http://localhost:8080"
   phases:
@@ -146,14 +185,21 @@ scenarios:
             - statusCode: 200`}</code></pre>
                         </div>
                         <p class="text-gray-400 text-sm mt-2">
-                            Three phases: warm-up (1→20 req/s), peak (20→50 req/s), cool-down (50→1 req/s). Each phase realistic and identifiable.
+                            Three phases: warm-up (1→20 req/s), peak (20→50
+                            req/s), cool-down (50→1 req/s). Each phase realistic
+                            and identifiable.
                         </p>
                     </div>
 
                     <div class="mb-6">
-                        <h3 class="text-indigo-300 font-bold mb-3">Item Bidding Load Test</h3>
-                        <div class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden">
-                            <pre class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`# ItemBiddingTest.yaml - Complex Bidding Scenario
+                        <h3 class="text-indigo-300 font-bold mb-3">
+                            Item Bidding Load Test
+                        </h3>
+                        <div
+                            class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden"
+                        >
+                            <pre
+                                class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`# ItemBiddingTest.yaml - Complex Bidding Scenario
 scenarios:
   - name: "Item Search & Bidding"
     weight: 50
@@ -211,14 +257,21 @@ config:
       name: "Cool down"`}</code></pre>
                         </div>
                         <p class="text-gray-400 text-sm mt-2">
-                            Realistic user flow: search, view details, bid, check history. Tests pagination, bid validation, complex queries.
+                            Realistic user flow: search, view details, bid,
+                            check history. Tests pagination, bid validation,
+                            complex queries.
                         </p>
                     </div>
 
                     <div>
-                        <h3 class="text-indigo-300 font-bold mb-3">Load Test Helper Functions</h3>
-                        <div class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden">
-                            <pre class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`// LoadTestFunctions.js - Custom Logic
+                        <h3 class="text-indigo-300 font-bold mb-3">
+                            Load Test Helper Functions
+                        </h3>
+                        <div
+                            class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden"
+                        >
+                            <pre
+                                class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`// LoadTestFunctions.js - Custom Logic
 module.exports = {
   generateUserData: generateUserData,
   generateValidBid: generateValidBid,
@@ -274,49 +327,105 @@ function indexArray(context, ee, next) {
 }`}</code></pre>
                         </div>
                         <p class="text-gray-400 text-sm mt-2">
-                            Custom JavaScript functions inject realistic data: random emails, progressive bid amounts, random pagination.
+                            Custom JavaScript functions inject realistic data:
+                            random emails, progressive bid amounts, random
+                            pagination.
                         </p>
                     </div>
                 </div>
 
                 <div>
-                    <h2 class="text-2xl font-bold text-white mb-4">Test Results & Metrics</h2>
+                    <h2 class="text-2xl font-bold text-white mb-4">
+                        Test Results & Metrics
+                    </h2>
                     <div class="space-y-4 text-gray-300">
-                        <div class="p-4 rounded-lg bg-indigo-500/10 border border-indigo-500/30">
-                            <h3 class="text-indigo-300 font-bold mb-2">📊 Key Metrics</h3>
+                        <div
+                            class="p-4 rounded-lg bg-indigo-500/10 border border-indigo-500/30"
+                        >
+                            <h3 class="text-indigo-300 font-bold mb-2">
+                                📊 Key Metrics
+                            </h3>
                             <ul class="text-sm space-y-1">
-                                <li><strong>Throughput:</strong> Requests per second the system can handle</li>
-                                <li><strong>Response Times:</strong> p50 (median), p95, p99 percentiles</li>
-                                <li><strong>Error Rate:</strong> % of requests that fail under load</li>
-                                <li><strong>Ramp Success:</strong> Can system handle gradual increase?</li>
-                                <li><strong>Graceful Degradation:</strong> Does it reject gracefully or crash?</li>
+                                <li>
+                                    <strong>Throughput:</strong> Requests per second
+                                    the system can handle
+                                </li>
+                                <li>
+                                    <strong>Response Times:</strong> p50 (median),
+                                    p95, p99 percentiles
+                                </li>
+                                <li>
+                                    <strong>Error Rate:</strong> % of requests that
+                                    fail under load
+                                </li>
+                                <li>
+                                    <strong>Ramp Success:</strong> Can system handle
+                                    gradual increase?
+                                </li>
+                                <li>
+                                    <strong>Graceful Degradation:</strong> Does it
+                                    reject gracefully or crash?
+                                </li>
                             </ul>
                         </div>
-                        <div class="p-4 rounded-lg bg-indigo-500/10 border border-indigo-500/30">
-                            <h3 class="text-indigo-300 font-bold mb-2">📈 Example Results</h3>
+                        <div
+                            class="p-4 rounded-lg bg-indigo-500/10 border border-indigo-500/30"
+                        >
+                            <h3 class="text-indigo-300 font-bold mb-2">
+                                📈 Example Results
+                            </h3>
                             <ul class="text-sm space-y-1">
-                                <li>• User Registration: p95 = 250ms at 50 req/s ✓</li>
-                                <li>• Item Search: p95 = 180ms at 100 req/s ✓</li>
-                                <li>• Bid Placement: p95 = 320ms at 50 req/s ✓</li>
-                                <li>• Error Rate at peak: 0.2% (database connection timeouts)</li>
+                                <li>
+                                    • User Registration: p95 = 250ms at 50 req/s
+                                    ✓
+                                </li>
+                                <li>
+                                    • Item Search: p95 = 180ms at 100 req/s ✓
+                                </li>
+                                <li>
+                                    • Bid Placement: p95 = 320ms at 50 req/s ✓
+                                </li>
+                                <li>
+                                    • Error Rate at peak: 0.2% (database
+                                    connection timeouts)
+                                </li>
                             </ul>
                         </div>
-                        <div class="p-4 rounded-lg bg-indigo-500/10 border border-indigo-500/30">
-                            <h3 class="text-indigo-300 font-bold mb-2">🔧 Optimizations Applied</h3>
+                        <div
+                            class="p-4 rounded-lg bg-indigo-500/10 border border-indigo-500/30"
+                        >
+                            <h3 class="text-indigo-300 font-bold mb-2">
+                                🔧 Optimizations Applied
+                            </h3>
                             <ul class="text-sm space-y-1">
-                                <li>• Added database index on itemId for bid queries</li>
-                                <li>• Implemented pagination defaults (max 100 items per page)</li>
-                                <li>• Optimized N+1 queries with eager loading</li>
-                                <li>• Increased connection pool from 10 to 20</li>
+                                <li>
+                                    • Added database index on itemId for bid
+                                    queries
+                                </li>
+                                <li>
+                                    • Implemented pagination defaults (max 100
+                                    items per page)
+                                </li>
+                                <li>
+                                    • Optimized N+1 queries with eager loading
+                                </li>
+                                <li>
+                                    • Increased connection pool from 10 to 20
+                                </li>
                             </ul>
                         </div>
                     </div>
                 </div>
 
                 <div>
-                    <h2 class="text-2xl font-bold text-white mb-4">Running Load Tests</h2>
-                    <div class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden">
-                        <pre class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`# Install Artillery
+                    <h2 class="text-2xl font-bold text-white mb-4">
+                        Running Load Tests
+                    </h2>
+                    <div
+                        class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden"
+                    >
+                        <pre
+                            class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`# Install Artillery
 npm install -g artillery
 
 # Run a load test
@@ -354,42 +463,76 @@ artillery run UserLoadTest.yaml --duration 120
                 </div>
 
                 <div>
-                    <h2 class="text-2xl font-bold text-white mb-4">Technology Stack</h2>
+                    <h2 class="text-2xl font-bold text-white mb-4">
+                        Technology Stack
+                    </h2>
                     <div class="flex flex-wrap gap-3">
-                        {['Artillery', 'YAML Scenarios', 'JavaScript Functions', 'Load Phases', 'Response Metrics', 'HTML Reports'].map((tech) => (
-                            <span class="rounded-full border border-indigo-500/30 bg-indigo-500/10 px-4 py-2 text-sm font-medium text-indigo-300">
-                                {tech}
-                            </span>
-                        ))}
+                        {
+                            [
+                                "Artillery",
+                                "YAML Scenarios",
+                                "JavaScript Functions",
+                                "Load Phases",
+                                "Response Metrics",
+                                "HTML Reports",
+                            ].map((tech) => (
+                                <span class="rounded-full border border-indigo-500/30 bg-indigo-500/10 px-4 py-2 text-sm font-medium text-indigo-300">
+                                    {tech}
+                                </span>
+                            ))
+                        }
                     </div>
                 </div>
 
                 <div>
-                    <h2 class="text-2xl font-bold text-white mb-4">Results & Impact</h2>
+                    <h2 class="text-2xl font-bold text-white mb-4">
+                        Results & Impact
+                    </h2>
                     <ul class="space-y-2 text-gray-300">
                         <li class="flex items-start">
                             <span class="text-indigo-400 mr-3">✓</span>
-                            <span><strong>Identified Bottlenecks:</strong> Found slow queries before users complained</span>
+                            <span
+                                ><strong>Identified Bottlenecks:</strong> Found slow
+                                queries before users complained</span
+                            >
                         </li>
                         <li class="flex items-start">
                             <span class="text-indigo-400 mr-3">✓</span>
-                            <span><strong>Validated Capacity:</strong> System handles expected peak load with acceptable latency</span>
+                            <span
+                                ><strong>Validated Capacity:</strong> System handles
+                                expected peak load with acceptable latency</span
+                            >
                         </li>
                         <li class="flex items-start">
                             <span class="text-indigo-400 mr-3">✓</span>
-                            <span><strong>Continuous Testing:</strong> Load tests run in CI/CD to prevent performance regressions</span>
+                            <span
+                                ><strong>Continuous Testing:</strong> Load tests run
+                                in CI/CD to prevent performance regressions</span
+                            >
                         </li>
                         <li class="flex items-start">
                             <span class="text-indigo-400 mr-3">✓</span>
-                            <span><strong>Realistic Scenarios:</strong> Tests simulate actual user behavior, not just HTTP noise</span>
+                            <span
+                                ><strong>Realistic Scenarios:</strong> Tests simulate
+                                actual user behavior, not just HTTP noise</span
+                            >
                         </li>
                         <li class="flex items-start">
                             <span class="text-indigo-400 mr-3">✓</span>
-                            <span><strong>Confidence in Scale:</strong> Know system handles growth without panic</span>
+                            <span
+                                ><strong>Confidence in Scale:</strong> Know system
+                                handles growth without panic</span
+                            >
                         </li>
                     </ul>
                 </div>
             </section>
+            <ChapterNav
+                prevLink="/syp-integration-testing"
+                prevText="Integration Testing"
+                nextLink="/syp-overview"
+                nextText="Back to Overview"
+            />
         </article>
     </main>
 </Layout>

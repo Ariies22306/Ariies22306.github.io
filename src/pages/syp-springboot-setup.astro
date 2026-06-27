@@ -1,21 +1,28 @@
 ---
-import Layout from '../layouts/Layout.astro';
+import Layout from "../layouts/Layout.astro";
+import ChapterNav from "../components/ChapterNav.astro";
 ---
 
 <Layout title="Spring Boot Setup & Multi-Profile Configuration - SYP">
     <main class="mx-auto max-w-4xl px-6 py-12 md:py-20">
-        <a href="/syp-overview" class="mb-8 inline-flex items-center text-sm font-medium text-indigo-400 hover:text-indigo-300">
+        <a
+            href="/syp-overview"
+            class="mb-8 inline-flex items-center text-sm font-medium text-indigo-400 hover:text-indigo-300"
+        >
             <span class="mr-2">&larr;</span>
             Back to SYP Overview
         </a>
 
         <article>
             <header class="mb-12">
-                <h1 class="mb-4 text-4xl font-extrabold tracking-tight sm:text-5xl text-white">
+                <h1
+                    class="mb-4 text-4xl font-extrabold tracking-tight sm:text-5xl text-white"
+                >
                     Spring Boot Setup & Multi-Profile Configuration
                 </h1>
                 <p class="text-lg text-gray-400">
-                    Configuring a production-ready Spring Boot 3.4.5 application with environment-specific settings
+                    Configuring a production-ready Spring Boot 3.4.5 application
+                    with environment-specific settings
                 </p>
             </header>
 
@@ -23,53 +30,81 @@ import Layout from '../layouts/Layout.astro';
                 <div>
                     <h2 class="text-2xl font-bold text-white mb-4">Overview</h2>
                     <p class="text-gray-300 leading-relaxed">
-                        Every real-world application needs different configurations for development, testing, and production. 
-                        This module covers how we structured the SYP project to handle multiple environments seamlessly using 
-                        Spring profiles, Maven configuration, and environment variables.
+                        Every real-world application needs different
+                        configurations for development, testing, and production.
+                        This module covers how we structured the SYP project to
+                        handle multiple environments seamlessly using Spring
+                        profiles, Maven configuration, and environment
+                        variables.
                     </p>
                 </div>
 
                 <div>
-                    <h2 class="text-2xl font-bold text-white mb-4">Learning Journey</h2>
+                    <h2 class="text-2xl font-bold text-white mb-4">
+                        Learning Journey
+                    </h2>
                     <div class="space-y-3 text-gray-300">
                         <div>
-                            <h3 class="text-indigo-300 font-bold mb-1">🔧 Challenge: Managing Multiple Environments</h3>
+                            <h3 class="text-indigo-300 font-bold mb-1">
+                                🔧 Challenge: Managing Multiple Environments
+                            </h3>
                             <p>
-                                Initially, everyone had different local database connections. Learned to use Spring profiles 
-                                so each developer could have their own setup without conflicting configurations.
+                                Initially, everyone had different local database
+                                connections. Learned to use Spring profiles so
+                                each developer could have their own setup
+                                without conflicting configurations.
                             </p>
                         </div>
                         <div>
-                            <h3 class="text-indigo-300 font-bold mb-1">🔐 Challenge: Secrets Management</h3>
+                            <h3 class="text-indigo-300 font-bold mb-1">
+                                🔐 Challenge: Secrets Management
+                            </h3>
                             <p>
-                                Database passwords, email credentials, and API keys shouldn't be in source code. Implemented 
-                                environment variables that override YAML configs for sensitive data.
+                                Database passwords, email credentials, and API
+                                keys shouldn't be in source code. Implemented
+                                environment variables that override YAML configs
+                                for sensitive data.
                             </p>
                         </div>
                         <div>
-                            <h3 class="text-indigo-300 font-bold mb-1">📊 Challenge: Data Consistency</h3>
+                            <h3 class="text-indigo-300 font-bold mb-1">
+                                📊 Challenge: Data Consistency
+                            </h3>
                             <p>
-                                Production needs real data, development needs test data. Used separate SQL scripts for each 
-                                environment and conditional loading based on profile.
+                                Production needs real data, development needs
+                                test data. Used separate SQL scripts for each
+                                environment and conditional loading based on
+                                profile.
                             </p>
                         </div>
                         <div>
-                            <h3 class="text-indigo-300 font-bold mb-1">✅ Key Learning</h3>
+                            <h3 class="text-indigo-300 font-bold mb-1">
+                                ✅ Key Learning
+                            </h3>
                             <p>
-                                Proper configuration management prevents hours of debugging caused by "works on my machine" 
-                                issues. Environment separation is crucial for team collaboration.
+                                Proper configuration management prevents hours
+                                of debugging caused by "works on my machine"
+                                issues. Environment separation is crucial for
+                                team collaboration.
                             </p>
                         </div>
                     </div>
                 </div>
 
                 <div>
-                    <h2 class="text-2xl font-bold text-white mb-4">Key Implementation</h2>
-                    
+                    <h2 class="text-2xl font-bold text-white mb-4">
+                        Key Implementation
+                    </h2>
+
                     <div class="mb-6">
-                        <h3 class="text-indigo-300 font-bold mb-3">Maven POM Configuration</h3>
-                        <div class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden">
-                            <pre class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`<!-- pom.xml - Spring Boot 3.4.5 with MS SQL Server -->
+                        <h3 class="text-indigo-300 font-bold mb-3">
+                            Maven POM Configuration
+                        </h3>
+                        <div
+                            class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden"
+                        >
+                            <pre
+                                class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`<!-- pom.xml - Spring Boot 3.4.5 with MS SQL Server -->
 <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
@@ -121,14 +156,20 @@ import Layout from '../layouts/Layout.astro';
 </dependencies>`}</code></pre>
                         </div>
                         <p class="text-gray-400 text-sm mt-2">
-                            Covers web, JPA, MS SQL, security, email, and WebSockets—all managed by Spring Boot starters.
+                            Covers web, JPA, MS SQL, security, email, and
+                            WebSockets—all managed by Spring Boot starters.
                         </p>
                     </div>
 
                     <div class="mb-6">
-                        <h3 class="text-indigo-300 font-bold mb-3">Application YAML - Profile Configuration</h3>
-                        <div class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden">
-                            <pre class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`# application.yaml - Default Profile
+                        <h3 class="text-indigo-300 font-bold mb-3">
+                            Application YAML - Profile Configuration
+                        </h3>
+                        <div
+                            class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden"
+                        >
+                            <pre
+                                class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`# application.yaml - Default Profile
 spring:
   config:
     activate:
@@ -193,15 +234,22 @@ spring.mail:
   password: \${MAIL_PASSWORD}`}</code></pre>
                         </div>
                         <p class="text-gray-400 text-sm mt-2">
-                            Spring profiles allow completely different configurations. Production uses <code>validate</code> mode 
-                            (won't auto-update schema) and larger connection pools.
+                            Spring profiles allow completely different
+                            configurations. Production uses <code>validate</code
+                            > mode (won't auto-update schema) and larger connection
+                            pools.
                         </p>
                     </div>
 
                     <div>
-                        <h3 class="text-indigo-300 font-bold mb-3">Docker & Environment Variables</h3>
-                        <div class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden">
-                            <pre class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`# Dockerfile
+                        <h3 class="text-indigo-300 font-bold mb-3">
+                            Docker & Environment Variables
+                        </h3>
+                        <div
+                            class="rounded-lg bg-gray-900 border border-gray-700 overflow-hidden"
+                        >
+                            <pre
+                                class="text-gray-300 text-sm p-4 overflow-x-auto"><code>{`# Dockerfile
 FROM openjdk:17-jdk-slim
 COPY target/spring-boot-jwt-auth.jar app.jar
 ENTRYPOINT ["java", "-jar", "app.jar"]
@@ -220,44 +268,76 @@ MAIL_PASSWORD=\${GMAIL_APP_PASSWORD}
 java -jar app.jar --spring.profiles.active=production`}</code></pre>
                         </div>
                         <p class="text-gray-400 text-sm mt-2">
-                            Environment variables override YAML configs, preventing secrets from ending up in source code.
+                            Environment variables override YAML configs,
+                            preventing secrets from ending up in source code.
                         </p>
                     </div>
                 </div>
 
                 <div>
-                    <h2 class="text-2xl font-bold text-white mb-4">Technology Stack</h2>
+                    <h2 class="text-2xl font-bold text-white mb-4">
+                        Technology Stack
+                    </h2>
                     <div class="flex flex-wrap gap-3">
-                        {['Spring Boot 3.4.5', 'Maven', 'YAML Configuration', 'Environment Variables', 'Docker', 'MS SQL Server'].map((tech) => (
-                            <span class="rounded-full border border-indigo-500/30 bg-indigo-500/10 px-4 py-2 text-sm font-medium text-indigo-300">
-                                {tech}
-                            </span>
-                        ))}
+                        {
+                            [
+                                "Spring Boot 3.4.5",
+                                "Maven",
+                                "YAML Configuration",
+                                "Environment Variables",
+                                "Docker",
+                                "MS SQL Server",
+                            ].map((tech) => (
+                                <span class="rounded-full border border-indigo-500/30 bg-indigo-500/10 px-4 py-2 text-sm font-medium text-indigo-300">
+                                    {tech}
+                                </span>
+                            ))
+                        }
                     </div>
                 </div>
 
                 <div>
-                    <h2 class="text-2xl font-bold text-white mb-4">Results & Impact</h2>
+                    <h2 class="text-2xl font-bold text-white mb-4">
+                        Results & Impact
+                    </h2>
                     <ul class="space-y-2 text-gray-300">
                         <li class="flex items-start">
                             <span class="text-indigo-400 mr-3">✓</span>
-                            <span><strong>No Configuration Conflicts:</strong> Each developer and environment has isolated settings</span>
+                            <span
+                                ><strong>No Configuration Conflicts:</strong> Each
+                                developer and environment has isolated settings</span
+                            >
                         </li>
                         <li class="flex items-start">
                             <span class="text-indigo-400 mr-3">✓</span>
-                            <span><strong>Secrets Not in Code:</strong> Passwords and API keys come from environment, never committed</span>
+                            <span
+                                ><strong>Secrets Not in Code:</strong> Passwords and
+                                API keys come from environment, never committed</span
+                            >
                         </li>
                         <li class="flex items-start">
                             <span class="text-indigo-400 mr-3">✓</span>
-                            <span><strong>Reproducible Environments:</strong> Same configs work on laptop, CI/CD pipeline, and production</span>
+                            <span
+                                ><strong>Reproducible Environments:</strong> Same
+                                configs work on laptop, CI/CD pipeline, and production</span
+                            >
                         </li>
                         <li class="flex items-start">
                             <span class="text-indigo-400 mr-3">✓</span>
-                            <span><strong>Team Collaboration:</strong> Everyone can focus on code, not wrestling with configuration</span>
+                            <span
+                                ><strong>Team Collaboration:</strong> Everyone can
+                                focus on code, not wrestling with configuration</span
+                            >
                         </li>
                     </ul>
                 </div>
             </section>
+            <ChapterNav
+                prevLink="/syp-overview"
+                prevText="Project Overview"
+                nextLink="/syp-service-layer"
+                nextText="Service Layer Architecture"
+            />
         </article>
     </main>
 </Layout>
