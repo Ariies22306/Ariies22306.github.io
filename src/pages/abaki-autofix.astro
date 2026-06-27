@@ -1,6 +1,8 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import ImageLightbox from "../components/ImageLightbox.astro";
 import ChapterNav from "../components/ChapterNav.astro";
+import bpmnIssues from "../screenshots/BPMN_Issues_Verarbeitung.PNG";
 ---
 
 <Layout title="AI-Powered Code Auto-Fix Engine - Abaki">
@@ -114,6 +116,29 @@ import ChapterNav from "../components/ChapterNav.astro";
                             </p>
                         </div>
                     </div>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4">
+                        Auto-Fix Engine Workflow
+                    </h2>
+                    <p class="text-gray-300 leading-relaxed mb-6">
+                        This BPMN diagram illustrates the complete lifecycle of
+                        a code issue within Abaki—from the initial detection via
+                        GitHub, through the streaming communication with the
+                        Python AI microservice, all the way to the automated
+                        code repair.
+                    </p>
+                    <ImageLightbox
+                        images={[
+                            {
+                                src: bpmnIssues,
+                                alt: "BPMN diagram showing the issue processing workflow in Abaki",
+                                caption:
+                                    "BPMN diagram illustrating the issue processing workflow within Abaki.",
+                            },
+                        ]}
+                    />
                 </div>
 
                 <div>

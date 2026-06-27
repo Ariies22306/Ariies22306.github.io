@@ -7,7 +7,7 @@ import junitTests from '../screenshots/JUnit_Tests.PNG';
 import testJwtToken from '../screenshots/Test_JWT_Token.PNG';
 ---
 
-<Layout title="SYP Sozialkaufhaus - Spring Boot Backend">
+<Layout title="SOKA Sozialkaufhaus - Spring Boot Backend">
     <main class="mx-auto max-w-4xl px-6 py-12 md:py-20">
         <a href="/" class="mb-8 inline-flex items-center text-sm font-medium text-indigo-400 hover:text-indigo-300">
             <span class="mr-2">&larr;</span>
@@ -17,7 +17,7 @@ import testJwtToken from '../screenshots/Test_JWT_Token.PNG';
         <article>
             <header class="mb-12">
                 <h1 class="mb-4 text-4xl font-extrabold tracking-tight sm:text-5xl text-white">
-                    SYP Sozialkaufhaus
+                    SOKA Sozialkaufhaus Website
                 </h1>
                 <p class="text-lg text-gray-400">
                     A Spring Boot 3.4.5 backend for an online auction platform managing items, users, and bids
@@ -26,17 +26,15 @@ import testJwtToken from '../screenshots/Test_JWT_Token.PNG';
 
             <section class="prose prose-invert max-w-none space-y-8">
                 <div>
-                    <h2 class="text-2xl font-bold text-white mb-4">Project Overview</h2>
+                    <h2 class="text-2xl font-bold text-white mb-4">Project Overview & My Role</h2>
                     <p class="text-gray-300 leading-relaxed">
-                        SYP Sozialkaufhaus is a school project built with Spring Boot 3.4.5 and Java 17. It's a full-featured 
-                        backend API for a social marketplace platform where users can list items for auction, place bids, and track 
-                        their activity. The system handles user registration, email verification, item management, bidding, and 
-                        real-time WebSocket updates.
+                        Built for <em>SOKA Das Sozialkaufhaus Wiener Neustadt</em>, this project is a full-featured backend API for a social marketplace platform. Originally developed as a school project for my Systemplanung und Projektentwicklung class using Spring Boot 3.4.5 and Java 17, the platform allows users to list items for auction, place bids, and track their activity. The system securely handles user registration, email verification, item management, bidding, and real-time WebSocket updates.
                     </p>
                     <p class="text-gray-300 leading-relaxed mt-4">
-                        This was a collaborative project where I contributed significantly to the business logic layer, integration testing, 
-                        load testing, and operations (logging, profiles, email service). I worked with a team and managed multiple concurrent 
-                        features while maintaining code quality and performance.
+                        I developed this alongside a <strong>4-person team</strong>, taking responsibility for approximately half of the backend engineering. 
+                        This deep dive focuses exclusively on my specific contributions to the project: building the core business logic layer, 
+                        establishing the integration and load testing infrastructure, and setting up critical operations like structured logging, 
+                        multi-environment profiles, and the email service.
                     </p>
                 </div>
 
@@ -65,7 +63,7 @@ import testJwtToken from '../screenshots/Test_JWT_Token.PNG';
                 </div>
 
                 <div>
-                    <h2 class="text-2xl font-bold text-white mb-4">Key Components</h2>
+                    <h2 class="text-2xl font-bold text-white mb-4">Key Components (My Contributions)</h2>
                     <ul class="space-y-3 text-gray-300">
                         <li class="flex items-start">
                             <span class="text-indigo-400 mr-3 font-bold">→</span>
@@ -128,7 +126,7 @@ import testJwtToken from '../screenshots/Test_JWT_Token.PNG';
                 <div>
                     <h2 class="text-2xl font-bold text-white mb-4">Featured Portfolio Pieces</h2>
                     <p class="text-gray-300 leading-relaxed mb-4">
-                        Break down of the core work I contributed to this project:
+                        Break down of the core backend work I contributed to this project:
                     </p>
                     <div class="space-y-3">
                         <a href="/syp-springboot-setup" class="block p-4 rounded-lg border border-indigo-500/30 bg-indigo-500/5 hover:bg-indigo-500/10 transition">
@@ -164,49 +162,12 @@ import testJwtToken from '../screenshots/Test_JWT_Token.PNG';
                 </div>
 
                 <div>
-                    <h2 class="text-2xl font-bold text-white mb-4">Learning Outcomes</h2>
-                    <p class="text-gray-300 leading-relaxed mb-4">
-                        This project taught me valuable lessons about enterprise Java development:
-                    </p>
-                    <ul class="space-y-2 text-gray-300">
-                        <li class="flex items-start">
-                            <span class="text-indigo-400 mr-3">✓</span>
-                            <span>Building scalable service layers with proper abstraction and separation of concerns</span>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="text-indigo-400 mr-3">✓</span>
-                            <span>Managing complex business logic in microservices (pagination, filtering, sorting)</span>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="text-indigo-400 mr-3">✓</span>
-                            <span>Email integration patterns and async processing for non-blocking operations</span>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="text-indigo-400 mr-3">✓</span>
-                            <span>Environment management with Spring profiles for dev/prod configurations</span>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="text-indigo-400 mr-3">✓</span>
-                            <span>Observability through structured logging and monitoring</span>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="text-indigo-400 mr-3">✓</span>
-                            <span>Testing strategies from unit tests to integration tests to load testing</span>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="text-indigo-400 mr-3">✓</span>
-                            <span>Performance optimization and identifying bottlenecks under load</span>
-                        </li>
-                    </ul>
-                </div>
-
-                <div>
-                    <h2 class="text-2xl font-bold text-white mb-4">Project Context</h2>
+                    <h2 class="text-2xl font-bold text-white mb-4">Team Collaboration & Context</h2>
                     <p class="text-gray-300 leading-relaxed">
-                        <strong>Vivify Scrum Board:</strong> The team used Vivify Scrum for sprint planning and task management, 
-                        which helped coordinate work across multiple developers. <strong>Code Ownership:</strong> I primarily owned 
-                        the Item and Sponsor services, testing infrastructure, and logging/profiling setup. Other team members handled 
-                        authentication, picture management, and WebSocket communication.
+                        <strong>Agile Workflow:</strong> Our 4-person team used Vivify Scrum for sprint planning and task management, 
+                        which helped coordinate work across multiple developers efficiently. <strong>Code Ownership:</strong> While I owned 
+                        the Item and Sponsor services, testing infrastructure, and logging/profiling setup, my teammates successfully handled 
+                        the authentication logic, user endpoints, picture management, and WebSocket communication.
                     </p>
                 </div>
             </section>
